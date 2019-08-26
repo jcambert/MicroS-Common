@@ -15,7 +15,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using MicroS_Common;
 using MicroS_Common.Mvc;
 
-namespace DShop.Common.Mvc
+namespace MicroS_Common.Mvc
 {
     public static class Extensions
     {
