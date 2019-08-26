@@ -32,7 +32,10 @@ namespace MicroS_Common.Mvc
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             return services
-                .AddMvcCore()
+                .AddMvcCore( o=>
+                {
+                    o.EnableEndpointRouting = false;
+                })
                 .AddNewtonsoftJson()
                 //.AddJsonFormatters()
                 .AddDataAnnotations()
