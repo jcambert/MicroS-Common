@@ -15,6 +15,7 @@ namespace MicroS_Common.Logging
                 var elkOptions = context.Configuration.GetOptions<ElkOptions>("elk");
                 var seqOptions = context.Configuration.GetOptions<SeqOptions>("seq");
                 var serilogOptions = context.Configuration.GetOptions<SerilogOptions>("serilog");
+                //var mq = context.Configuration.GetOptions<RabbitMq.RabbitMqOptions>("rabbitmq");
                 if (!Enum.TryParse<LogEventLevel>(serilogOptions.Level, true, out var level))
                 {
                     level = LogEventLevel.Information;

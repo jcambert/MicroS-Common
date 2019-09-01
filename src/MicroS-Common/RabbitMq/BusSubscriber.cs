@@ -1,4 +1,5 @@
-﻿using MicroS_Common.Handlers;
+﻿using Autofac;
+using MicroS_Common.Handlers;
 using MicroS_Common.Messages;
 using MicroS_Common.Types;
 using Microsoft.AspNetCore.Builder;
@@ -32,6 +33,7 @@ namespace MicroS_Common.RabbitMq
             _busClient = _serviceProvider.GetService<IBusClient>();
             _tracer = _serviceProvider.GetService<ITracer>();
             var options = _serviceProvider.GetService<RabbitMqOptions>();
+
             _retries = options.Retries >= 0 ? options.Retries : 3;
             _retryInterval = options.RetryInterval > 0 ? options.RetryInterval : 2;
         }

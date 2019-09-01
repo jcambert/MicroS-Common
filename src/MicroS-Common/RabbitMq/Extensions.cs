@@ -28,7 +28,8 @@ namespace MicroS_Common.RabbitMq
 
         public static void AddRabbitMq(this ContainerBuilder builder)
         {
-            builder.Register(context =>
+            
+            builder.Register< RabbitMqOptions>(context =>
             {
                 var configuration = context.Resolve<IConfiguration>();
                 var options = configuration.GetOptions<RabbitMqOptions>("rabbitMq");
