@@ -124,6 +124,7 @@ namespace MicroS_Common.RabbitMq
                         {
                             var rejectedEvent = onError(message, dShopException);
                             await _busClient.PublishAsync(rejectedEvent, ctx => ctx.UseMessageContext(correlationContext));
+
                             _logger.LogInformation($"Published a rejected event: '{rejectedEvent.GetType().Name}' " +
                                                    $"for the message: '{messageName}' with correlation id: '{correlationContext.Id}'.");
 

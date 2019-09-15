@@ -80,6 +80,7 @@ namespace MicroS_Common.Consul
                     Name = serviceName,
                     ID = serviceId,
                     Address = address,
+                    
                     Port = port,
                     Tags = fabioOptions.Value.Enabled ? GetFabioTags(serviceName, fabioOptions.Value.Service) : null
                 };
@@ -94,7 +95,14 @@ namespace MicroS_Common.Consul
                         DeregisterCriticalServiceAfter = TimeSpan.FromSeconds(removeAfterInterval),
                         HTTP = $"{scheme}{address}{(port > 0 ? $":{port}" : string.Empty)}/{pingEndpoint}"
                     };
-                    registration.Checks = new[] { check };
+                    var check1 = new AgentServiceCheck
+                    {
+                        Interval = TimeSpan.FromSeconds(pingInterval),
+                        DeregisterCriticalServiceAfter = TimeSpan.FromSeconds(removeAfterInterval),
+                        TCP = $"http://localhost:5000"
+                    };
+                    //registration.Check = check1;
+                    registration.Checks = new[] { check/*,check1 */};
                 }
 
                 client.Agent.ServiceRegister(registration);

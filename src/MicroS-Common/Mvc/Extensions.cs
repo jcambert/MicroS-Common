@@ -36,11 +36,12 @@ namespace MicroS_Common.Mvc
                 {
                     o.EnableEndpointRouting = false;
                 })
-                .AddNewtonsoftJson()
+                //.AddNewtonsoftJson()
                 //.AddJsonFormatters()
+                //.AddDefaultJsonOptions()
                 .AddDataAnnotations()
                 .AddApiExplorer()
-                .AddDefaultJsonOptions()
+                
                 .AddAuthorization();
         }
 
@@ -59,7 +60,7 @@ namespace MicroS_Common.Mvc
                     return startupInitializer;
                 });
 
-        public static IMvcCoreBuilder AddDefaultJsonOptions(this IMvcCoreBuilder builder)
+       /* public static IMvcCoreBuilder AddDefaultJsonOptions(this IMvcCoreBuilder builder)
             => builder.AddNewtonsoftJson (o =>
             {
                 o.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
@@ -69,7 +70,7 @@ namespace MicroS_Common.Mvc
                 o.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
                 o.SerializerSettings.Formatting = Formatting.Indented;
                 o.SerializerSettings.Converters.Add(new StringEnumConverter());
-            });
+            });*/
 
         public static IApplicationBuilder UseErrorHandler(this IApplicationBuilder builder)
             => builder.UseMiddleware<ErrorHandlerMiddleware>();
