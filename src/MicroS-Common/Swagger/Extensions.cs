@@ -25,7 +25,7 @@ namespace MicroS_Common.Swagger
 
             return services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc(options.Name, new Info { Title = options.Title, Version = options.Version });
+                /*c.SwaggerDoc(options.Name, new Info { Title = options.Title, Version = options.Version });
                 if (options.IncludeSecurity)
                 {
                     c.AddSecurityDefinition("Bearer", new ApiKeyScheme
@@ -36,7 +36,7 @@ namespace MicroS_Common.Swagger
                         In = "header",
                         Type = "apiKey"
                     });
-                }
+                }*/
             });
         }
 

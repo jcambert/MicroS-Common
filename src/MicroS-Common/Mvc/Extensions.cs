@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Serialization;
+
 using Lockbox.Client.Extensions;
 using Microsoft.AspNetCore.Hosting;
 using System;
@@ -14,6 +12,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using MicroS_Common;
 using MicroS_Common.Mvc;
+using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
+using Newtonsoft.Json.Serialization;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace MicroS_Common.Mvc
 {
@@ -30,13 +32,22 @@ namespace MicroS_Common.Mvc
             services.AddSingleton<IServiceId, ServiceId>();
             services.AddTransient<IStartupInitializer, StartupInitializer>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-
+            
             return services
                 .AddMvcCore( o=>
                 {
                     o.EnableEndpointRouting = false;
                 })
-                //.AddNewtonsoftJson()
+                
+                .AddNewtonsoftJson(o=> {
+                    o.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+                    o.SerializerSettings.DateFormatHandling = DateFormatHandling.IsoDateFormat;
+                    o.SerializerSettings.DateParseHandling = DateParseHandling.DateTimeOffset;
+                    o.SerializerSettings.PreserveReferencesHandling = PreserveReferencesHandling.None;
+                    o.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+                    o.SerializerSettings.Formatting = Formatting.Indented;
+                    o.SerializerSettings.Converters.Add(new StringEnumConverter());
+                })
                 //.AddJsonFormatters()
                 //.AddDefaultJsonOptions()
                 .AddDataAnnotations()
@@ -60,8 +71,8 @@ namespace MicroS_Common.Mvc
                     return startupInitializer;
                 });
 
-       /* public static IMvcCoreBuilder AddDefaultJsonOptions(this IMvcCoreBuilder builder)
-            => builder.AddNewtonsoftJson (o =>
+      /*  public static IMvcCoreBuilder AddDefaultJsonOptions(this IMvcCoreBuilder builder)
+            => builder.AddJsonOptions (o =>
             {
                 o.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
                 o.SerializerSettings.DateFormatHandling = DateFormatHandling.IsoDateFormat;
@@ -70,8 +81,8 @@ namespace MicroS_Common.Mvc
                 o.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
                 o.SerializerSettings.Formatting = Formatting.Indented;
                 o.SerializerSettings.Converters.Add(new StringEnumConverter());
-            });*/
-
+            });
+            */
         public static IApplicationBuilder UseErrorHandler(this IApplicationBuilder builder)
             => builder.UseMiddleware<ErrorHandlerMiddleware>();
 
