@@ -47,6 +47,7 @@ namespace MicroS_Common.Mvc
                     o.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
                     o.SerializerSettings.Formatting = Formatting.Indented;
                     o.SerializerSettings.Converters.Add(new StringEnumConverter());
+                    o.SerializerSettings.Converters.Add(new StringTrimConverter());
                 })
                 //.AddJsonFormatters()
                 //.AddDefaultJsonOptions()

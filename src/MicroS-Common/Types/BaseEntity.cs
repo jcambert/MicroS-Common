@@ -4,6 +4,7 @@ namespace MicroS_Common.Types
 {
     public abstract class BaseEntity : IIdentifiable
     {
+        [Unique]
         public Guid Id { get; protected set; }
         public DateTime CreatedDate { get; protected set; }
         public DateTime UpdatedDate { get; protected set; }
