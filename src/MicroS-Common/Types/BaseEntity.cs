@@ -16,7 +16,22 @@ namespace MicroS_Common.Types
             SetUpdatedDate();
         }
 
-        protected virtual void SetUpdatedDate()
-            => UpdatedDate = DateTime.UtcNow;
+        protected virtual void SetUpdatedDate(bool update=false)
+            => UpdatedDate = update ? DateTime.UtcNow: UpdatedDate;
+
+        /*public static void SetProperty< T>( ref T backingField, T newValue, Expression<Func<T>> propertyExpression)
+         
+
+        {
+            if (backingField == null && newValue == null)
+            {
+                return;
+            }
+
+            if (backingField == null || !backingField.Equals(newValue))
+            {
+                backingField = newValue;
+            }
+        }*/
     }
 }
