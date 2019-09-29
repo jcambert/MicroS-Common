@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
 using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using Microsoft.Extensions.Logging;
 
 namespace MicroS_Common.Mvc
 {
@@ -32,14 +33,15 @@ namespace MicroS_Common.Mvc
             services.AddSingleton<IServiceId, ServiceId>();
             services.AddTransient<IStartupInitializer, StartupInitializer>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-            
+
             return services
-                .AddMvcCore( o=>
+                .AddMvcCore(o =>
+               {
+                   o.EnableEndpointRouting = false;
+               })
+
+                .AddNewtonsoftJson(o =>
                 {
-                    o.EnableEndpointRouting = false;
-                })
-                
-                .AddNewtonsoftJson(o=> {
                     o.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
                     o.SerializerSettings.DateFormatHandling = DateFormatHandling.IsoDateFormat;
                     o.SerializerSettings.DateParseHandling = DateParseHandling.DateTimeOffset;
@@ -53,7 +55,6 @@ namespace MicroS_Common.Mvc
                 //.AddDefaultJsonOptions()
                 .AddDataAnnotations()
                 .AddApiExplorer()
-                
                 .AddAuthorization();
         }
 
@@ -72,18 +73,18 @@ namespace MicroS_Common.Mvc
                     return startupInitializer;
                 });
 
-      /*  public static IMvcCoreBuilder AddDefaultJsonOptions(this IMvcCoreBuilder builder)
-            => builder.AddJsonOptions (o =>
-            {
-                o.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-                o.SerializerSettings.DateFormatHandling = DateFormatHandling.IsoDateFormat;
-                o.SerializerSettings.DateParseHandling = DateParseHandling.DateTimeOffset;
-                o.SerializerSettings.PreserveReferencesHandling = PreserveReferencesHandling.None;
-                o.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-                o.SerializerSettings.Formatting = Formatting.Indented;
-                o.SerializerSettings.Converters.Add(new StringEnumConverter());
-            });
-            */
+        /*  public static IMvcCoreBuilder AddDefaultJsonOptions(this IMvcCoreBuilder builder)
+              => builder.AddJsonOptions (o =>
+              {
+                  o.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+                  o.SerializerSettings.DateFormatHandling = DateFormatHandling.IsoDateFormat;
+                  o.SerializerSettings.DateParseHandling = DateParseHandling.DateTimeOffset;
+                  o.SerializerSettings.PreserveReferencesHandling = PreserveReferencesHandling.None;
+                  o.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+                  o.SerializerSettings.Formatting = Formatting.Indented;
+                  o.SerializerSettings.Converters.Add(new StringEnumConverter());
+              });
+              */
         public static IApplicationBuilder UseErrorHandler(this IApplicationBuilder builder)
             => builder.UseMiddleware<ErrorHandlerMiddleware>();
 
@@ -111,25 +112,31 @@ namespace MicroS_Common.Mvc
                 }
             });
 
-        public static T Bind<T>(this T model, Expression<Func<T, object>> expression, object value)
+        public static T Bind<T>(this T model, Expression<Func<T, object>> expression, object value,ILogger<T> logger=null)
             => model.Bind<T, object>(expression, value);
 
-        public static T BindId<T>(this T model, Expression<Func<T, Guid>> expression)
-            => model.Bind<T, Guid>(expression, Guid.NewGuid());
+        public static T BindId<T>(this T model, Expression<Func<T, Guid>> expression, ILogger<T> logger = null)
+            => model.Bind<T, Guid>(expression, Guid.NewGuid(), logger );
 
         private static TModel Bind<TModel, TProperty>(this TModel model, Expression<Func<TModel, TProperty>> expression,
-            object value)
+            object value, ILogger<TModel> logger = null)
         {
             if (!(expression.Body is MemberExpression memberExpression))
             {
                 memberExpression = ((UnaryExpression)expression.Body).Operand as MemberExpression;
             }
 
-            var propertyName = memberExpression.Member.Name.ToLowerInvariant();
+             var propertyName = memberExpression.Member.Name.ToLowerInvariant();
             var modelType = model.GetType();
-            var field = modelType.GetFields(BindingFlags.Instance | BindingFlags.NonPublic)
-                .SingleOrDefault(x => x.Name.ToLowerInvariant().StartsWith($"<{propertyName}>"));
-            if (field == null)
+            var fields = modelType.GetFields(BindingFlags.Instance | BindingFlags.NonPublic);
+           
+            if (logger != null)
+                fields.ToList().ForEach(f =>
+                {
+                    logger.LogError(f.Name);
+                });
+            var field = fields.SingleOrDefault(x => x.Name.ToLowerInvariant().StartsWith($"<{propertyName}>"));
+             if (field == null)
             {
                 return model;
             }

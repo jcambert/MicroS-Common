@@ -1,13 +1,29 @@
-﻿using MicroS_Common.Mongo;
+﻿using AutoMapper;
+using MicroS_Common.Mongo;
 using MicroS_Common.Types;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace MicroS_Common.Repository
 {
+    public abstract class BrowseRepository<TDomain, TBrowse, TDto> : BaseRepository<TDomain>, IBrowseRepository<TDomain, TBrowse, TDto>
+        where TDomain : BaseEntity
+        where TBrowse : PagedQueryBase, IQuery<PagedResult<TDto>>
+    {
+        private readonly IMapper _mapper;
+
+        public BrowseRepository(IMongoRepository<TDomain> repository,IMapper mapper) : base(repository)
+        {
+            _mapper = mapper;
+        }
+
+        //public async Task<PagedResult<TDomain>> BrowseAsync(TBrowse query) => await Repository.BrowseAsync(p=> p.Price >= query.PriceFrom && p.Price <= query.PriceTo, query);
+        public abstract Task<PagedResult<TDomain>> BrowseAsync(TBrowse query);
+    }
     public class BaseRepository<TDomain> : IRepository<TDomain> where TDomain : BaseEntity
     {
         private readonly IMongoRepository<TDomain> _repository;

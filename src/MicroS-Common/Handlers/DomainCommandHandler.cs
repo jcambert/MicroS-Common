@@ -16,14 +16,14 @@ namespace MicroS_Common.Handlers
         
 
         public DomainCommandHandler(IBusPublisher busPublisher,
-            IMapper mapper,IRepository<TDomain> repo):base(busPublisher,mapper)
+            IMapper mapper,IRepository<TDomain> repo) :base(busPublisher,mapper)
         {
             Repository = repo;
         }
         protected TDomain GetDomainObject(TCommand command)=> Mapper.Map<TDomain>(command);
 
         protected TEvent CreateEvent<TEvent>(TCommand command) where TEvent:IEvent
-            => Mapper.Map<TEvent>(command);
+            => Mapper.Map<TCommand,TEvent>(command);
 
         public IRepository<TDomain> Repository { get; private set; }
 

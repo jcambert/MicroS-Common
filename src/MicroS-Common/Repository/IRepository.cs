@@ -7,6 +7,12 @@ using System.Threading.Tasks;
 
 namespace MicroS_Common.Repository
 {
+    public interface IBrowseRepository<TDomain, TBrowse, TDto> : IRepository<TDomain>
+        where TBrowse : PagedQueryBase, IQuery<PagedResult<TDto>>
+        where TDomain : BaseEntity
+    {
+        Task<PagedResult<TDomain>> BrowseAsync(TBrowse query);
+    }
     public interface IRepository<TDomain> where TDomain:BaseEntity
     {
         Task<TDomain> GetAsync(Guid id);
