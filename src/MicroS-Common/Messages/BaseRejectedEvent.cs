@@ -3,7 +3,7 @@ using System;
 
 namespace MicroS_Common.Messages
 {
-    public class BaseRejectedEvent : IRejectedEvent
+    public abstract class BaseRejectedEvent : IRejectedEvent
     {
         public Guid Id { get; }
         public string Reason { get; }
