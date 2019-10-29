@@ -16,25 +16,34 @@ namespace MicroS_Common.Handlers
         
 
         public DomainCommandHandler(IBusPublisher busPublisher,
-            IMapper mapper,IRepository<TDomain> repo) :base(busPublisher,mapper)
+            IMapper mapper,IRepository<TDomain> repo,IDomainValidation<TDomain> validator=null) :base(busPublisher,mapper)
         {
             Repository = repo;
+            Validator = validator;
         }
         protected TDomain GetDomainObject(TCommand command)=> Mapper.Map<TDomain>(command);
 
         protected TEvent CreateEvent<TEvent>(TCommand command) where TEvent:IEvent
             => Mapper.Map<TCommand,TEvent>(command);
 
-        public IRepository<TDomain> Repository { get; private set; }
+        public IRepository<TDomain> Repository { get;  }
+        public IDomainValidation<TDomain> Validator { get; }
 
-        protected virtual Task CheckExist(TCommand command)
+        protected virtual Task CheckExist(TDomain entity)
         {
-            return Task.CompletedTask;
+            return  Task.CompletedTask;
         }
 
+        protected virtual void Validate(TDomain entity)
+        {
+            Validator?.Validate(entity);
+        }
         public override async Task HandleAsync(TCommand command, ICorrelationContext context)
         {
-            await CheckExist(command);
+            var domain = GetDomainObject(command);
+            await CheckExist(domain);
+            Validate(domain);
+
         }
 
 
