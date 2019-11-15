@@ -9,6 +9,10 @@ namespace MicroS_Common.Types
         public DateTime CreatedDate { get; protected set; }
         public DateTime UpdatedDate { get; protected set; }
 
+        public BaseEntity():this(Guid.NewGuid())
+        {
+
+        }
         public BaseEntity(Guid id)
         {
             Id = id;

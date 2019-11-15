@@ -1,5 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
+using System;
+using System.IO;
 using System.Linq;
+using System.Xml.Serialization;
 
 namespace MicroS_Common
 {
@@ -14,6 +17,53 @@ namespace MicroS_Common
             configuration.GetSection(section).Bind(model);
 
             return model;
+        }
+
+        /// <summary>
+        /// Deserialize an Xml string into Object T
+        /// </summary>
+        /// <typeparam name="T">Type Param</typeparam>
+        /// <param name="input">The string to deserialize</param>
+        /// <returns></returns>
+        public static T Deserialize<T>(this string input) where T : class
+        {
+            XmlSerializer ser = new XmlSerializer(typeof(T));
+
+            using StringReader sr = new StringReader(input);
+            return (T)ser.Deserialize(sr);
+        }
+
+        /// <summary>
+        /// Deserialize an Xml string into Object T
+        /// </summary>
+        /// <typeparam name="T">Type Param</typeparam>
+        /// <param name="input">The stream to deserialize</param>
+        /// <returns></returns>
+        public static T Deserialize<T>(this Stream input) where T : class
+        {
+            XmlSerializer ser = new XmlSerializer(typeof(T));
+            return (T)ser.Deserialize(input);
+            
+        }
+
+        /// <summary>
+        /// Deserialize an Xml string into Object T
+        /// </summary>
+        /// <typeparam name="T">Type Param</typeparam>
+        /// <param name="input">The bytes to deserialize</param>
+        /// <returns></returns>
+        public static T Deserialize<T>(this byte[] input) where T : class
+        {
+            try
+            {
+                XmlSerializer ser = new XmlSerializer(typeof(T));
+                using MemoryStream ms = new MemoryStream(input);
+                return (T)ser.Deserialize(ms);
+            }catch (Exception e){
+
+                throw e;
+            }
+
         }
     }
 }

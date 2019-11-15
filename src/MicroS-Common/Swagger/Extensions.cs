@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Swashbuckle.AspNetCore.Swagger;
+using Microsoft.OpenApi.Models;
 
 namespace MicroS_Common.Swagger
 {
@@ -25,18 +25,19 @@ namespace MicroS_Common.Swagger
 
             return services.AddSwaggerGen(c =>
             {
-                /*c.SwaggerDoc(options.Name, new Info { Title = options.Title, Version = options.Version });
+                c.SwaggerDoc(options.Name, new OpenApiInfo() { Title = options.Title, Version = options.Version });
                 if (options.IncludeSecurity)
                 {
-                    c.AddSecurityDefinition("Bearer", new ApiKeyScheme
+                   /* c.AddSecurityDefinition("Bearer", new ApiKeyScheme
                     {
                         Description =
                             "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
                         Name = "Authorization",
                         In = "header",
                         Type = "apiKey"
-                    });
-                }*/
+                    });*/
+                }
+               
             });
         }
 
