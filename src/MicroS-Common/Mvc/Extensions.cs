@@ -17,12 +17,13 @@ using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Mvc;
 
 namespace MicroS_Common.Mvc
 {
     public static class Extensions
     {
-        public static IMvcCoreBuilder AddCustomMvc(this IServiceCollection services)
+        public static IMvcCoreBuilder AddCustomMvc(this IServiceCollection services,Action<MvcOptions> options=null)
         {
             using (var serviceProvider = services.BuildServiceProvider())
             {
@@ -38,6 +39,7 @@ namespace MicroS_Common.Mvc
                 .AddMvcCore(o =>
                {
                    o.EnableEndpointRouting = false;
+                   options?.Invoke(o);
                })
 
                 .AddNewtonsoftJson(o =>
