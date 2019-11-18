@@ -27,7 +27,7 @@ namespace MicroS_Common.Handlers
         public virtual  async Task<PagedResult<TDto>> HandleAsync(TBrowseQuery query)
         {
             var pagedResult = await BrowseAsync(query);
-            var p = _mapper.Map<TDomain, TDto>(pagedResult.Items.Last());
+            //var p = _mapper.Map<TDomain, TDto>(pagedResult.Items.Last());
             var products = pagedResult.Items.Select(p => _mapper.Map<TDomain, TDto>(p)).ToList();
 
             return PagedResult<TDto>.From(pagedResult, products);
