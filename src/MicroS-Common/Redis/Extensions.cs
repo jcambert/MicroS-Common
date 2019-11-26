@@ -17,12 +17,16 @@ namespace MicroS_Common.Redis
 
             services.Configure<RedisOptions>(configuration.GetSection(SectionName));
             var options = configuration.GetOptions<RedisOptions>(SectionName);
-            services.AddDistributedRedisCache(o =>
+            services.AddSingleton(options);
+            if (options.Enabled)
             {
-                o.Configuration = options.ConnectionString;
-                o.InstanceName = options.Instance;
-            });
-
+                services.AddDistributedRedisCache(o =>
+                {
+                    o.Configuration = options.ConnectionString;
+                    o.InstanceName = options.Instance;
+                });
+                services.AddSingleton<IResponseCacheService, ResponseCacheService>();
+            }
             return services;
         }
     }

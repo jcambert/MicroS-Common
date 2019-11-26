@@ -4,5 +4,8 @@
     {
         public string ConnectionString { get; set; }
         public string Instance { get; set; }
+
+        public bool Enabled { get; set; } = true;
+        public int? TimeLive { get; set; }
     }
 }
