@@ -1,10 +1,15 @@
-﻿namespace MicroS_Common.Types
+﻿
+namespace MicroS_Common.Types
 {
     public abstract class PagedQueryBase : IPagedQuery
     {
-        public int Page { get; set; }
-        public int Results { get; set; }
-        public string OrderBy { get; set; }
-        public string SortOrder { get; set; }
+        [DisableSearchFilter]
+        public int Page { get; set; } = 1;
+        [DisableSearchFilter]
+        public int Results { get; set; } = 10;
+        [DisableSearchFilter]
+        public string OrderBy { get; set; } = string.Empty;
+        [DisableSearchFilter]
+        public string SortOrder { get; set; } = string.Empty;
     }
 }

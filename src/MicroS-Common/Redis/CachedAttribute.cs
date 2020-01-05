@@ -3,10 +3,12 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace MicroS_Common.Redis
 {
@@ -32,19 +34,23 @@ namespace MicroS_Common.Redis
                 return;
             }
             
-
+            var logger= context.HttpContext.RequestServices.GetRequiredService(typeof(ILogger<CachedAttribute>)) as ILogger<CachedAttribute>;
             var cacheService= context.HttpContext.RequestServices.GetRequiredService(typeof(IResponseCacheService)) as IResponseCacheService;
             var cacheKey = GenerateCacheKeyfromRequest(context.HttpContext.Request);
             var cachedResponse = await cacheService.GetCachedResponseAsync(cacheKey);
             if (!string.IsNullOrEmpty(cachedResponse))
             {
+                var cacheValue=JsonSerializer.Deserialize<CacheValue>(cachedResponse);
+                logger.LogInformation($"Get {context.HttpContext.Request.Path.Value} from cache");
                 var contentResult = new ContentResult()
                 {
-                    Content=cachedResponse,
+                    Content= JsonSerializer.Serialize<object>( cacheValue.Value),
                     ContentType= "application/json; charset=utf-8",
                     StatusCode=200
                 };
                 context.Result = contentResult;
+                context.HttpContext.Response.Headers["link"] = cacheValue.Link;
+                context.HttpContext.Response.Headers["X-Total-Count"] = cacheValue.Total;
                 return;
             }
 
@@ -52,10 +58,20 @@ namespace MicroS_Common.Redis
             if(executedContext.Result is OkObjectResult okresult)
             {
                 int timeToLiveSeconds = _timeToLiveSeconds ?? redisOptions.TimeLive ?? DEFAULT_TIME_TO_LIVE;
-                await cacheService.CacheResponseAsync(cacheKey, okresult.Value, TimeSpan.FromSeconds(timeToLiveSeconds));
+                //await cacheService.CacheResponseAsync(cacheKey, okresult.Value, TimeSpan.FromSeconds(timeToLiveSeconds));
+                var headerLink=context.HttpContext.Response.Headers["link"];
+                var totalCount = context.HttpContext.Response.Headers["X-Total-Count"];
+                logger.LogInformation($"Save {context.HttpContext.Request.Path.Value} to cache");
+
+                await cacheService.CacheResponseAsync($"{cacheKey}",new CacheValue() { Value = okresult.Value,Link=headerLink,Total=totalCount }, TimeSpan.FromSeconds(timeToLiveSeconds));
             }
         }
-
+        private class CacheValue
+        {
+            public object Value { get; set; }
+            public string Link { get; set; }
+            public string Total { get; set; }
+        }
         private string GenerateCacheKeyfromRequest(HttpRequest request)
         {
             var keyBuilder = new StringBuilder();
