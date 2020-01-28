@@ -15,7 +15,8 @@ namespace MicroS_Common.Controllers
         {
             _dispatcher = dispatcher;
         }
-
+        [HttpGet("ping")]
+        public IActionResult Ping() => Ok();
         protected async Task<TResult> QueryAsync<TResult>(IQuery<TResult> query)
             => await _dispatcher.QueryAsync<TResult>(query);
 
