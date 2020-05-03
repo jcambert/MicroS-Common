@@ -2,10 +2,7 @@
 using MicroS_Common.Mongo;
 using MicroS_Common.Types;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace MicroS_Common.Repository
@@ -16,7 +13,7 @@ namespace MicroS_Common.Repository
     {
         private readonly IMapper _mapper;
 
-        public BrowseRepository(IMongoRepository<TDomain> repository,IMapper mapper) : base(repository)
+        public BrowseRepository(IMongoRepository<TDomain> repository, IMapper mapper) : base(repository)
         {
             _mapper = mapper;
         }
@@ -34,7 +31,7 @@ namespace MicroS_Common.Repository
 
         public IMongoRepository<TDomain> Repository => _repository;
 
-        public async virtual  Task AddAsync(TDomain domain) => await _repository.AddAsync(domain);
+        public async virtual Task AddAsync(TDomain domain) => await _repository.AddAsync(domain);
 
         public async virtual Task DeleteAsync(Guid id) => await _repository.DeleteAsync(id);
 

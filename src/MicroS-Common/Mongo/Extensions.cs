@@ -2,9 +2,6 @@
 using MicroS_Common.Types;
 using Microsoft.Extensions.Configuration;
 using MongoDB.Driver;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace MicroS_Common.Mongo
 {

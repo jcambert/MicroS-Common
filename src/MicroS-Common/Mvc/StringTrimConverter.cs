@@ -5,7 +5,7 @@ namespace MicroS_Common.Mvc
 {
     public class StringTrimConverter : JsonConverter
     {
-        public StringTrimConverter():base()
+        public StringTrimConverter() : base()
         {
 
         }

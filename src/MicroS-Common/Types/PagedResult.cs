@@ -6,7 +6,7 @@ namespace MicroS_Common.Types
 {
     public class PagedResult<T> : PagedResultBase
     {
-        public IEnumerable<T> Items { get; }
+        public IEnumerable<T> Items { get; private set; }
 
         public bool IsEmpty => Items == null || !Items.Any();
         public bool IsNotEmpty => !IsEmpty;
@@ -25,6 +25,16 @@ namespace MicroS_Common.Types
             Items = items;
         }
 
+
+        public void AddRange(PagedResult<T> range)
+        {
+            var list = new List<T>();
+            list.AddRange(Items);
+            list.AddRange(range.Items);
+            Items = list;
+            TotalPages += range.TotalPages;
+            TotalResults += range.TotalResults;
+        }
         public static PagedResult<T> Create(IEnumerable<T> items,
             int currentPage, int resultsPerPage,
             int totalPages, long totalResults)

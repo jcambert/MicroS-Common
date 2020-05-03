@@ -19,7 +19,7 @@ namespace MicroS_Common.Mvc
 {
     public static class Extensions
     {
-        public static IMvcCoreBuilder AddCustomMvc(this IServiceCollection services,Action<MvcOptions> options=null)
+        public static IMvcCoreBuilder AddCustomMvc(this IServiceCollection services, Action<MvcOptions> options = null)
         {
             using (var serviceProvider = services.BuildServiceProvider())
             {
@@ -110,11 +110,11 @@ namespace MicroS_Common.Mvc
                 }
             });
 
-        public static T Bind<T>(this T model, Expression<Func<T, object>> expression, object value,ILogger<T> logger=null)
+        public static T Bind<T>(this T model, Expression<Func<T, object>> expression, object value, ILogger<T> logger = null)
             => model.Bind<T, object>(expression, value);
 
         public static T BindId<T>(this T model, Expression<Func<T, Guid>> expression, ILogger<T> logger = null)
-            => model.Bind<T, Guid>(expression, Guid.NewGuid(), logger );
+            => model.Bind<T, Guid>(expression, Guid.NewGuid(), logger);
 
         private static TModel Bind<TModel, TProperty>(this TModel model, Expression<Func<TModel, TProperty>> expression,
             object value, ILogger<TModel> logger = null)
@@ -124,17 +124,17 @@ namespace MicroS_Common.Mvc
                 memberExpression = ((UnaryExpression)expression.Body).Operand as MemberExpression;
             }
 
-             var propertyName = memberExpression.Member.Name.ToLowerInvariant();
+            var propertyName = memberExpression.Member.Name.ToLowerInvariant();
             var modelType = model.GetType();
             var fields = modelType.GetFields(BindingFlags.Instance | BindingFlags.NonPublic);
-           
+
             if (logger != null)
                 fields.ToList().ForEach(f =>
                 {
                     logger.LogError(f.Name);
                 });
             var field = fields.SingleOrDefault(x => x.Name.ToLowerInvariant().StartsWith($"<{propertyName}>"));
-             if (field == null)
+            if (field == null)
             {
                 return model;
             }

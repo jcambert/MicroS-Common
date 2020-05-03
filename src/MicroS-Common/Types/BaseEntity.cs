@@ -9,7 +9,7 @@ namespace MicroS_Common.Types
         public DateTime CreatedDate { get; protected set; }
         public DateTime UpdatedDate { get; protected set; }
 
-        public BaseEntity():this(Guid.NewGuid())
+        public BaseEntity() : this(Guid.NewGuid())
         {
 
         }
@@ -20,8 +20,8 @@ namespace MicroS_Common.Types
             SetUpdatedDate();
         }
 
-        protected virtual void SetUpdatedDate(bool update=false)
-            => UpdatedDate = update ? DateTime.UtcNow: UpdatedDate;
+        protected virtual void SetUpdatedDate(bool update = false)
+            => UpdatedDate = update ? DateTime.UtcNow : UpdatedDate;
 
         /*public static void SetProperty< T>( ref T backingField, T newValue, Expression<Func<T>> propertyExpression)
          

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace MicroS_Common.Jeager
+﻿namespace MicroS_Common.Jeager
 {
     public class JaegerOptions
     {

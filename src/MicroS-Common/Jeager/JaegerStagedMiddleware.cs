@@ -7,8 +7,6 @@ using OpenTracing.Tag;
 using RawRabbit.Pipe;
 using RawRabbit.Pipe.Middleware;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 

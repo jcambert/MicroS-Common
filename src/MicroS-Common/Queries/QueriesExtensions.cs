@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using MicroS_Common.Types;
 using Microsoft.AspNetCore.Builder;
-using System.Reflection;
-using MicroS_Common.Types;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 #if DEBUG
-using System.Diagnostics;
 
 #endif
 namespace MicroS_Common
@@ -41,10 +39,7 @@ namespace MicroS_Common
                         let attr = p.GetCustomAttributes(typeof(FormatAttribute), true)
                         where attr.Length == 1
                         select new PropertyWithFormatAttribute() { Property = p, Attribute = attr.First() as FormatAttribute };
-#if DEBUG
-            //if (Debugger.IsAttached && query.GetType().Name == "BrowseJoueur")
-                // Debugger.Break();
-#endif
+
             if (props.Count() > 0)
             {
                 _logger.LogInformation($"Register Query {typeof(T)}");

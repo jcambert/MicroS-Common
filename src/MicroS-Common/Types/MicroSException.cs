@@ -2,7 +2,7 @@
 
 namespace MicroS_Common.Types
 {
-    public class MicroSException:Exception
+    public class MicroSException : Exception
     {
         public string Code { get; }
 

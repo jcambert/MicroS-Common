@@ -1,8 +1,6 @@
 ﻿using MicroS_Common.Messages;
 using MicroS_Common.Types;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace MicroS_Common.RabbitMq
 {

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace MicroS_Common.Messages
+﻿namespace MicroS_Common.Messages
 {
     public class Resource
     {

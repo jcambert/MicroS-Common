@@ -1,9 +1,9 @@
-﻿using System;
-using App.Metrics;
+﻿using App.Metrics;
 using App.Metrics.AspNetCore;
 using App.Metrics.AspNetCore.Health;
 using App.Metrics.Formatters.Prometheus;
 using Microsoft.AspNetCore.Hosting;
+using System;
 
 namespace MicroS_Common.Metrics
 {
@@ -17,7 +17,10 @@ namespace MicroS_Common.Metrics
             {
                 return webHostBuilder;
             }
-
+            webHostBuilder.ConfigureKestrel((context, options) =>
+            {
+                options.AllowSynchronousIO = true;
+            });
             return webHostBuilder
                 .ConfigureMetricsWithDefaults((context, builder) =>
                 {

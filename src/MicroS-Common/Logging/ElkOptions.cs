@@ -1,4 +1,5 @@
-﻿namespace MicroS_Common.Logging { 
+﻿namespace MicroS_Common.Logging
+{
     public class ElkOptions
     {
         public bool Enabled { get; set; }

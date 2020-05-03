@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Microsoft.AspNetCore.Builder;
+using System;
 using System.Reflection;
-using System.Text;
-using Microsoft.AspNetCore.Builder;
 namespace MicroS_Common
 {
     public static class DtoExtensions

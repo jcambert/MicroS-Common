@@ -1,5 +1,4 @@
-﻿using Autofac;
-using MicroS_Common.Handlers;
+﻿using MicroS_Common.Handlers;
 using MicroS_Common.Messages;
 using MicroS_Common.Types;
 using Microsoft.AspNetCore.Builder;

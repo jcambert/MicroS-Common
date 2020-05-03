@@ -1,16 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace MicroS_Common.Types
 {
-    public class ValidationException:MicroSException
+    public class ValidationException : MicroSException
     {
         public ValidationException()
         {
         }
 
-        public ValidationException(string code):base(code)
+        public ValidationException(string code) : base(code)
         {
         }
 
@@ -30,7 +28,7 @@ namespace MicroS_Common.Types
         }
 
         public ValidationException(Exception innerException, string code, string message, params object[] args)
-            : base(code,string.Format(message, args), innerException)
+            : base(code, string.Format(message, args), innerException)
         {
         }
     }

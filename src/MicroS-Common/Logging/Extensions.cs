@@ -1,8 +1,8 @@
-﻿using System;
-using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Hosting;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.Elasticsearch;
+using System;
 
 namespace MicroS_Common.Logging
 {

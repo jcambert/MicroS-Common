@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace MicroS_Common.Types
+﻿namespace MicroS_Common.Types
 {
     //Marker
     public interface IQuery

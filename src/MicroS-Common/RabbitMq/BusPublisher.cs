@@ -1,7 +1,7 @@
-﻿using System.Threading.Tasks;
-using MicroS_Common.Messages;
+﻿using MicroS_Common.Messages;
 using RawRabbit;
 using RawRabbit.Enrichers.MessageContext;
+using System.Threading.Tasks;
 
 namespace MicroS_Common.RabbitMq
 {

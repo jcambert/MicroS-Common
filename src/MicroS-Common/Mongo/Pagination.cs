@@ -1,8 +1,8 @@
-﻿using System;
-using System.Threading.Tasks;
-using MicroS_Common.Types;
+﻿using MicroS_Common.Types;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
+using System;
+using System.Threading.Tasks;
 
 namespace MicroS_Common.Mongo
 {

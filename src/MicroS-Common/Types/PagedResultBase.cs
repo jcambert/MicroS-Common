@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace MicroS_Common.Types
+﻿namespace MicroS_Common.Types
 {
     public abstract class PagedResultBase
     {
         public int CurrentPage { get; }
         public int ResultsPerPage { get; }
-        public int TotalPages { get; }
-        public long TotalResults { get; }
+        public int TotalPages { get; protected set; }
+        public long TotalResults { get; protected set; }
 
         protected PagedResultBase()
         {

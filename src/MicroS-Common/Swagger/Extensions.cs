@@ -28,16 +28,16 @@ namespace MicroS_Common.Swagger
                 c.SwaggerDoc(options.Name, new OpenApiInfo() { Title = options.Title, Version = options.Version });
                 if (options.IncludeSecurity)
                 {
-                   /* c.AddSecurityDefinition("Bearer", new ApiKeyScheme
-                    {
-                        Description =
-                            "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
-                        Name = "Authorization",
-                        In = "header",
-                        Type = "apiKey"
-                    });*/
+                    /* c.AddSecurityDefinition("Bearer", new ApiKeyScheme
+                     {
+                         Description =
+                             "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+                         Name = "Authorization",
+                         In = "header",
+                         Type = "apiKey"
+                     });*/
                 }
-               
+
             });
         }
 

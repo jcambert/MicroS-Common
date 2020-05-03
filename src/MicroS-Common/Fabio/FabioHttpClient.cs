@@ -1,8 +1,5 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace MicroS_Common.Fabio
@@ -30,6 +27,6 @@ namespace MicroS_Common.Fabio
             return JsonConvert.DeserializeObject<T>(content);
         }
 
-        
+
     }
 }

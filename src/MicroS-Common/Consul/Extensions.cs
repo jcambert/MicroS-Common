@@ -80,7 +80,7 @@ namespace MicroS_Common.Consul
                     Name = serviceName,
                     ID = serviceId,
                     Address = address,
-                    
+
                     Port = port,
                     Tags = fabioOptions.Value.Enabled ? GetFabioTags(serviceName, fabioOptions.Value.Service) : null
                 };

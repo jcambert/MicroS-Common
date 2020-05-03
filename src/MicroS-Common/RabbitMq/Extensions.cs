@@ -13,9 +13,7 @@ using RawRabbit.Instantiation;
 using RawRabbit.Pipe;
 using RawRabbit.Pipe.Middleware;
 using System;
-using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -28,14 +26,14 @@ namespace MicroS_Common.RabbitMq
 
         public static void AddRabbitMq(this ContainerBuilder builder)
         {
-            
-            builder.Register< RabbitMqOptions>(context =>
-            {
-                var configuration = context.Resolve<IConfiguration>();
-                var options = configuration.GetOptions<RabbitMqOptions>("rabbitMq");
 
-                return options;
-            }).SingleInstance();
+            builder.Register<RabbitMqOptions>(context =>
+           {
+               var configuration = context.Resolve<IConfiguration>();
+               var options = configuration.GetOptions<RabbitMqOptions>("rabbitMq");
+
+               return options;
+           }).SingleInstance();
 
             builder.Register(context =>
             {

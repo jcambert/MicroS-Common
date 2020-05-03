@@ -21,7 +21,7 @@ namespace MicroS_Common.Redis
                 return;
             }
 
-            var serializedResponse =  JsonConvert.SerializeObject(response);
+            var serializedResponse = JsonConvert.SerializeObject(response);
 
             await _distributedCache.SetStringAsync(cacheKey, serializedResponse, new DistributedCacheEntryOptions
             {

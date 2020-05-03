@@ -5,7 +5,7 @@ using System.Threading;
 
 namespace MicroS_Common
 {
-    public abstract class FormatAttribute:Attribute
+    public abstract class FormatAttribute : Attribute
     {
         public abstract string Format(string value);
     }

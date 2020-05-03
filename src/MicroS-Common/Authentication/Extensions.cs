@@ -1,9 +1,9 @@
-﻿using System;
-using System.Text;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using System;
+using System.Text;
 
 namespace MicroS_Common.Authentication
 {

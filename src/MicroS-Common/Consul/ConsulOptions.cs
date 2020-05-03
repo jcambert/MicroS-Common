@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace MicroS_Common.Consul
+﻿namespace MicroS_Common.Consul
 {
     public sealed class ConsulOptions
     {

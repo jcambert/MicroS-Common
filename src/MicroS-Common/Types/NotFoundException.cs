@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace MicroS_Common.Types
 {
-    public class NotFoundException: MicroSException
+    public class NotFoundException : MicroSException
     {
         public NotFoundException()
         {

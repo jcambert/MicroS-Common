@@ -1,7 +1,7 @@
-﻿using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using MicroS_Common.Messages;
 using MicroS_Common.RabbitMq;
+using System.Threading.Tasks;
 
 namespace MicroS_Common.Handlers
 {
@@ -18,9 +18,9 @@ namespace MicroS_Common.Handlers
         public IBusPublisher BusPublisher { get; private set; }
         public IMapper Mapper { get; private set; }
 
-        public abstract  Task HandleAsync(TCommand command, ICorrelationContext context);
+        public abstract Task HandleAsync(TCommand command, ICorrelationContext context);
 
-       
-        
+
+
     }
 }

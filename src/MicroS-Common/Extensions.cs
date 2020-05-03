@@ -43,7 +43,7 @@ namespace MicroS_Common
         {
             XmlSerializer ser = new XmlSerializer(typeof(T));
             return (T)ser.Deserialize(input);
-            
+
         }
 
         /// <summary>
@@ -59,7 +59,9 @@ namespace MicroS_Common
                 XmlSerializer ser = new XmlSerializer(typeof(T));
                 using MemoryStream ms = new MemoryStream(input);
                 return (T)ser.Deserialize(ms);
-            }catch (Exception e){
+            }
+            catch (Exception e)
+            {
 
                 throw e;
             }

@@ -54,7 +54,8 @@ namespace MicroS_Common.Types
                 update?.Invoke();
                 return true;
 
-            }catch(Exception e)
+            }
+            catch (Exception e)
             {
                 throw new MicroSException(e, "Unattended Exception!!" + e.Message);
             }

@@ -3,35 +3,33 @@ using MicroS_Common.Messages;
 using MicroS_Common.RabbitMq;
 using MicroS_Common.Repository;
 using MicroS_Common.Types;
-using System;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace MicroS_Common.Handlers
 {
-    public abstract class DomainCommandHandler<TCommand,TDomain> : BaseCommandHandler<TCommand>
+    public abstract class DomainCommandHandler<TCommand, TDomain> : BaseCommandHandler<TCommand>
         where TCommand : ICommand
-        where TDomain: BaseEntity
+        where TDomain : BaseEntity
     {
-        
+
 
         public DomainCommandHandler(IBusPublisher busPublisher,
-            IMapper mapper,IRepository<TDomain> repo,IDomainValidation<TDomain> validator=null) :base(busPublisher,mapper)
+            IMapper mapper, IRepository<TDomain> repo, IDomainValidation<TDomain> validator = null) : base(busPublisher, mapper)
         {
             Repository = repo;
             Validator = validator;
         }
-        protected TDomain GetDomainObject(TCommand command)=> Mapper.Map<TDomain>(command);
+        protected TDomain GetDomainObject(TCommand command) => Mapper.Map<TDomain>(command);
 
-        protected TEvent CreateEvent<TEvent>(TCommand command) where TEvent:IEvent
-            => Mapper.Map<TCommand,TEvent>(command);
+        protected TEvent CreateEvent<TEvent>(TCommand command) where TEvent : IEvent
+            => Mapper.Map<TCommand, TEvent>(command);
 
-        public IRepository<TDomain> Repository { get;  }
+        public IRepository<TDomain> Repository { get; }
         public IDomainValidation<TDomain> Validator { get; }
 
         protected virtual Task CheckExist(TDomain entity)
         {
-            return  Task.CompletedTask;
+            return Task.CompletedTask;
         }
 
         protected virtual void Validate(TDomain entity)
