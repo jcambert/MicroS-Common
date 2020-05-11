@@ -67,7 +67,11 @@ namespace MicroS_Common.Metrics
                     }
                 })
                 .UseHealth()
-                .UseHealthEndpoints()
+                .UseHealthEndpoints(opts=>
+                {
+                    opts.HealthEndpointEnabled = true;
+                    opts.PingEndpointEnabled = true;
+                })
                 .UseMetricsWebTracking()
                 .UseMetrics((context, options) =>
                 {
