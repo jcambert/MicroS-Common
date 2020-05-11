@@ -18,31 +18,34 @@ namespace MicroS_Common.Repository
             _mapper = mapper;
         }
 
-        //public async Task<PagedResult<TDomain>> BrowseAsync(TBrowse query) => await Repository.BrowseAsync(p=> p.Price >= query.PriceFrom && p.Price <= query.PriceTo, query);
-        public abstract Task<PagedResult<TDomain>> BrowseAsync(TBrowse query);
+
+        public async Task<PagedResult<TDomain>> BrowseAsync(TBrowse query)=>await Repository.BrowseAsync(query);
+        public async Task<PagedResult<TDomain>> BrowseAsync<TBrowse>(Expression<Func<TDomain, bool>> predicate, TBrowse query)
+            where TBrowse : PagedQueryBase
+            => await Repository.BrowseAsync(predicate, query);
+
     }
     public class BaseRepository<TDomain> : IRepository<TDomain> where TDomain : BaseEntity
     {
-        private readonly IMongoRepository<TDomain> _repository;
         public BaseRepository(IMongoRepository<TDomain> repository)
         {
-            _repository = repository;
+            Repository = repository;
         }
 
-        public IMongoRepository<TDomain> Repository => _repository;
+        public IMongoRepository<TDomain> Repository { get; }
 
-        public async virtual Task AddAsync(TDomain domain) => await _repository.AddAsync(domain);
+        public async virtual Task AddAsync(TDomain domain) => await Repository.AddAsync(domain);
 
-        public async virtual Task DeleteAsync(Guid id) => await _repository.DeleteAsync(id);
+        public async virtual Task DeleteAsync(Guid id) => await Repository.DeleteAsync(id);
 
-        public async virtual Task<bool> ExistsAsync(Guid id) => await _repository.ExistsAsync(p => p.Id == id);
+        public async virtual Task<bool> ExistsAsync(Guid id) => await Repository.ExistsAsync(p => p.Id == id);
 
-        public async virtual Task<bool> ExistsAsync(Expression<Func<TDomain, bool>> predicate) => await _repository.ExistsAsync(predicate);
+        public async virtual Task<bool> ExistsAsync(Expression<Func<TDomain, bool>> predicate) => await Repository.ExistsAsync(predicate);
 
-        public async virtual Task<TDomain> GetAsync(Guid id) => await _repository.GetAsync(id);
+        public async virtual Task<TDomain> GetAsync(Guid id) => await Repository.GetAsync(id);
 
-        public async virtual Task<TDomain> GetAsync(Expression<Func<TDomain, bool>> predicate) => await _repository.GetAsync(predicate);
+        public async virtual Task<TDomain> GetAsync(Expression<Func<TDomain, bool>> predicate) => await Repository.GetAsync(predicate);
 
-        public async virtual Task UpdateAsync(TDomain domain) => await _repository.UpdateAsync(domain);
+        public async virtual Task UpdateAsync(TDomain domain) => await Repository.UpdateAsync(domain);
     }
 }

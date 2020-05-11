@@ -10,18 +10,17 @@ namespace MicroS_Common.Repository
         where TDomain : BaseEntity
     {
         Task<PagedResult<TDomain>> BrowseAsync(TBrowse query);
+        Task<PagedResult<TDomain>> BrowseAsync<TQuery>(Expression<Func<TDomain, bool>> predicate, TQuery query) where TQuery : PagedQueryBase;
     }
     public interface IRepository<TDomain> where TDomain : BaseEntity
     {
         Task<TDomain> GetAsync(Guid id);
-        Task<bool> ExistsAsync(Guid id);
-
-
         Task<TDomain> GetAsync(Expression<Func<TDomain, bool>> predicate);
-        Task<bool> ExistsAsync(Expression<Func<TDomain, bool>> predicate);
-
         Task AddAsync(TDomain domain);
+        Task<bool> ExistsAsync(Guid id);
         Task UpdateAsync(TDomain domain);
         Task DeleteAsync(Guid id);
+        Task<bool> ExistsAsync(Expression<Func<TDomain, bool>> predicate);
+
     }
 }

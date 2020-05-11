@@ -20,6 +20,18 @@ namespace MicroS_Common.RabbitMq
         IBusSubscriber SubscribeCommand<TCommand>(string @namespace = null, string queueName = null,
             Func<TCommand, MicroSException, IRejectedEvent> onError = null)
             where TCommand : ICommand;
+
+        /// <summary>
+        /// Subscribe to a command receive from the bus
+        /// </summary>
+        /// <param name="command">A type of Command (must inherit from ICommand interface) </param>
+        /// <param name="namespace">the namespace of the command</param>
+        /// <param name="queueName">the queue name of the command</param>
+        /// <param name="onError">ErrorCallback</param>
+        /// <returns></returns>
+        IBusSubscriber SubscribeCommandByType(Type command, string @namespace = null, string queueName = null,
+            Func<object, MicroSException, IRejectedEvent> onError = null);
+
         /// <summary>
         /// subscribe to an event from the bus
         /// </summary>

@@ -2,11 +2,13 @@
 using MicroS_Common.Messages;
 using MicroS_Common.Types;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OpenTracing;
 using OpenTracing.Tag;
 using Polly;
+using RabbitMQ.Client.Framing.Impl;
 using RawRabbit;
 using RawRabbit.Common;
 using RawRabbit.Enrichers.MessageContext;
@@ -41,16 +43,28 @@ namespace MicroS_Common.RabbitMq
             Func<TCommand, MicroSException, IRejectedEvent> onError = null)
             where TCommand : ICommand
         {
-            _busClient.SubscribeAsync<TCommand, CorrelationContext>(async (command, correlationContext) =>
+            _busClient.SubscribeAsync<TCommand, CorrelationContext>( async (command, correlationContext) =>
             {
                 var commandHandler = _serviceProvider.GetService<ICommandHandler<TCommand>>();
 
-                return await TryHandleAsync(command, correlationContext,
-                    () => commandHandler.HandleAsync(command, correlationContext), onError);
+                return await TryHandleAsync(command, correlationContext,() => commandHandler.HandleAsync(command, correlationContext), onError);
             });
 
             return this;
         }
+
+        public IBusSubscriber SubscribeCommandByType(Type command, string @namespace = null, string queueName = null, Func<object, MicroSException, IRejectedEvent> onError = null)
+        {
+           
+            var m0=this.GetType().GetMethod("SubscribeCommand");
+            var m1 = m0.MakeGenericMethod(command);
+            m1.Invoke(this, new object[] { @namespace, queueName, onError });
+
+
+            return this;
+        }
+
+
 
         public IBusSubscriber SubscribeEvent<TEvent>(string @namespace = null, string queueName = null,
             Func<TEvent, MicroSException, IRejectedEvent> onError = null)
