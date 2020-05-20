@@ -1,6 +1,9 @@
-﻿using MicroS_Common.Dispatchers;
+﻿using MicroS_Common.Applications;
+using MicroS_Common.Dispatchers;
 using MicroS_Common.Types;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using System;
 using System.Threading.Tasks;
 
 namespace MicroS_Common.Controllers
@@ -9,16 +12,28 @@ namespace MicroS_Common.Controllers
     [Route("[controller]")]
     public class BaseController : ControllerBase
     {
-        private readonly IDispatcher _dispatcher;
-
-        public BaseController(IDispatcher dispatcher)
+        protected IDispatcher Dispatcher { get; }
+        protected IConfiguration Configuration { get; }
+        protected ApplicationOptions Options { get; }
+        public BaseController(IDispatcher dispatcher,IConfiguration configuration)
         {
-            _dispatcher = dispatcher;
+            Dispatcher = dispatcher;
+            Configuration = configuration;
+            ApplicationOptions options;
+            Options = configuration.TryGetOptions<ApplicationOptions>("app", out options) ? options : new ApplicationOptions() { Name = ApplicationOptions.DEFAULT_NAME };
         }
-        [HttpGet("ping")]
-        public IActionResult Ping() => Ok();
+        protected bool IsAdmin => User.IsInRole("admin");
+
+        protected Guid UserId=> string.IsNullOrWhiteSpace(User?.Identity?.Name) ?Guid.Empty : Guid.Parse(User.Identity.Name);
+
+        /*[HttpGet("ping"),HttpHead]
+        public IActionResult Ping() => Ok();*/
+
+        [HttpGet("info")]
+        public virtual IActionResult Get() => Ok($"{Options.Name} Service");
+
         protected async Task<TResult> QueryAsync<TResult>(IQuery<TResult> query)
-            => await _dispatcher.QueryAsync<TResult>(query);
+            => await Dispatcher.QueryAsync<TResult>(query);
 
         protected ActionResult<T> Single<T>(T data)
         {

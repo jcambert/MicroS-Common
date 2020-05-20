@@ -2,6 +2,7 @@
 using MicroS_Common.Mongo;
 using MicroS_Common.Types;
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
@@ -41,6 +42,8 @@ namespace MicroS_Common.Repository
         public async virtual Task<bool> ExistsAsync(Guid id) => await Repository.ExistsAsync(p => p.Id == id);
 
         public async virtual Task<bool> ExistsAsync(Expression<Func<TDomain, bool>> predicate) => await Repository.ExistsAsync(predicate);
+
+        public async Task<IEnumerable<TDomain>> FindAsync(string q) => await Repository.FindAsync(q);
 
         public async virtual Task<TDomain> GetAsync(Guid id) => await Repository.GetAsync(id);
 

@@ -10,6 +10,8 @@ namespace MicroS_Common.Mongo
     {
         Task<TEntity> GetAsync(Guid id);
         Task<TEntity> GetAsync(Expression<Func<TEntity, bool>> predicate);
+        Task<IEnumerable<TEntity>> FindAsync(string q);
+
         Task<IEnumerable<TEntity>> FindAsync(Expression<Func<TEntity, bool>> predicate);
         Task<PagedResult<TEntity>> BrowseAsync<TQuery>( TQuery query) where TQuery : PagedQueryBase;
         Task<PagedResult<TEntity>> BrowseAsync<TQuery>(Expression<Func<TEntity, bool>> predicate,TQuery query) where TQuery : PagedQueryBase;

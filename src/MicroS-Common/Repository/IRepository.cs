@@ -1,5 +1,6 @@
 ﻿using MicroS_Common.Types;
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
@@ -14,6 +15,7 @@ namespace MicroS_Common.Repository
     }
     public interface IRepository<TDomain> where TDomain : BaseEntity
     {
+        Task<IEnumerable<TDomain>> FindAsync(string q);
         Task<TDomain> GetAsync(Guid id);
         Task<TDomain> GetAsync(Expression<Func<TDomain, bool>> predicate);
         Task AddAsync(TDomain domain);

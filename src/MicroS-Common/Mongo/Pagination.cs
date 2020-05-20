@@ -2,12 +2,23 @@
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace MicroS_Common.Mongo
 {
     public static class Pagination
     {
+        public static PagedResult<T>Paginate<T>(this IQueryable<T> collection,PagedQueryBase query)
+        {
+            if(!collection.Any())
+                return PagedResult<T>.Empty;
+            var totalResults = collection.Count();
+            var totalPages = (int)Math.Ceiling((decimal)totalResults /query.Results);
+            var data =collection.Skip((query.Page - 1) * query.Results).Take(query.Results);
+
+            return PagedResult<T>.Create(data, query.Page, query.Results, totalPages, totalResults);
+        }
         public static async Task<PagedResult<T>> PaginateAsync<T>(this IMongoQueryable<T> collection, PagedQueryBase query)
             => await collection.PaginateAsync(query.Page, query.Results);
 

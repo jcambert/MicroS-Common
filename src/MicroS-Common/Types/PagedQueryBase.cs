@@ -11,5 +11,8 @@ namespace MicroS_Common.Types
         public string OrderBy { get; set; } = string.Empty;
         [DisableSearchFilter]
         public string SortOrder { get; set; } = string.Empty;
+
+        public string Q { get; set; } = string.Empty;
+
     }
 }

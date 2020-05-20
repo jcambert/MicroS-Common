@@ -18,6 +18,21 @@ namespace MicroS_Common
 
             return model;
         }
+        public static bool TryGetOptions<TModel>(this IConfiguration configuration, string section,out TModel model) where TModel : new()
+        {
+            try
+            {
+                model = new TModel();
+                configuration.GetSection(section).Bind(model);
+
+                return true;
+            }
+            catch
+            {
+                model =default(TModel);
+                return false;
+            }
+        }
 
         /// <summary>
         /// Deserialize an Xml string into Object T
