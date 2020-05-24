@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using MicroS_Common.Repository;
 using MicroS_Common.Types;
+using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Core.Operations;
@@ -42,10 +44,12 @@ namespace MicroS_Common.Handlers
         where TRepository : IBrowseRepository<TDomain, TBrowseQuery, TDto>
     {
         private readonly TRepository _repository;
+        private readonly ILogger<BaseBrowseHandler<TDomain, TBrowseQuery, TDto, TRepository>> _logger;
 
-        public BaseBrowseHandler(TRepository repository, IMapper mapper) : base(mapper)
+        public BaseBrowseHandler(TRepository repository, IMapper mapper,ILogger<BaseBrowseHandler<TDomain, TBrowseQuery, TDto, TRepository>> logger) : base(mapper)
         {
             _repository = repository;
+            _logger = logger;
         }
 
         public TRepository Repository => _repository;
@@ -65,15 +69,20 @@ namespace MicroS_Common.Handlers
             Expression res = null;
             foreach (var prop in props)
             {
-                var propValue = query.GetType().GetProperty(prop.Name).GetGetMethod().Invoke(query, null);
-                if (propValue == null) continue;
-                Expression left = Expression.Property(typeParam, typeof(TDomain).GetProperty(prop.Name));
-                Expression right = Expression.Constant(propValue);
-                if (res == null)
-                    res = Expression.Equal(left, right);
-                else
-                    res = Expression.AndAlso(res, Expression.Equal(left, right));
-
+                try
+                {
+                    var propValue = query.GetType().GetProperty(prop.Name).GetGetMethod().Invoke(query, null);
+                    if (propValue == null) continue;
+                    Expression left = Expression.Property(typeParam, typeof(TDomain).GetProperty(prop.Name));
+                    Expression right = Expression.Constant(propValue);
+                    if (res == null)
+                        res = Expression.Equal(left, right);
+                    else
+                        res = Expression.AndAlso(res, Expression.Equal(left, right));
+                }catch(Exception e)
+                {
+                    _logger.LogError($"{typeof(TDomain).Name} did not have property {prop.Name} as {typeof(TBrowseQuery).Name} requested. this will be ignored=>use Q instead");
+                }
             }
   
             if (res == null) return null;

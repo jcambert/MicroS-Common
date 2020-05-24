@@ -1,17 +1,23 @@
 ﻿using Autofac;
+using Autofac.Builder;
+using Autofac.Features.Scanning;
 using AutoMapper;
 using Consul;
 using MicroS_Common.Applications;
 using MicroS_Common.Authentication;
 using MicroS_Common.Consul;
 using MicroS_Common.Dispatchers;
+using MicroS_Common.Dispatchers.Operations.Events;
 using MicroS_Common.Jeager;
 using MicroS_Common.Mongo;
 using MicroS_Common.Mvc;
 using MicroS_Common.RabbitMq;
 using MicroS_Common.Redis;
 using MicroS_Common.Repository;
+using MicroS_Common.RestEase;
 using MicroS_Common.Services.Identity.Dto;
+using MicroS_Common.Services.SignalR;
+using MicroS_Common.Services.SignalR.Hubs;
 using MicroS_Common.Swagger;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -21,6 +27,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 
@@ -34,32 +42,46 @@ namespace MicroS_Common
     {
         private static readonly string[] Headers = new[] { "X-Operation", "X-Resource", "X-Total-Count" };
         public IConfiguration Configuration { get; }
-        public ApplicationOptions ApplicationOptions { get; }
+        public AppOptions ApplicationOptions { get; }
+        public SignalrOptions SignalROptions { get;  }
+        public ILogger<BaseStartup> Logger { get; private set; }
+        public bool UseSignalR => !string.IsNullOrEmpty(SignalROptions.Hub);
         public bool UseMongo { get; }
-        protected abstract Type DomainType { get; }
         protected virtual bool UseCors => false;
+        protected abstract Type DomainType { get; }
         private Type MongoDatabaseSeederType => Assembly.GetEntryAssembly().GetTypes().Where(t => t.IsSubclassOf(typeof(MongoDbSeeder))).FirstOrDefault();
+        List<Assembly> Assemblies { get; }
         public BaseStartup(IConfiguration configuration)
         {
             Configuration = configuration;
-            UseMongo = (Configuration.GetOptions<MongoDbOptions>("mongo") != null);
-            ApplicationOptions options;
-            ApplicationOptions = configuration.TryGetOptions<ApplicationOptions>("app", out options) ? options : new ApplicationOptions() { Name = ApplicationOptions.DEFAULT_NAME };
+            UseMongo = (Configuration.GetOptions<MongoDbOptions>(MongoDbOptions.SECTION).Database != null);
+            SignalROptions = Configuration.GetOptions<SignalrOptions>(SignalrOptions.SECTION);
+            ApplicationOptions = configuration.GetOptions<AppOptions>(AppOptions.SECTION);
+
+            Assemblies = new List<Assembly> {
+                typeof(BaseStartup).Assembly,
+                Assembly.GetEntryAssembly(),
+                //Assembly.GetExecutingAssembly(),
+            };
+            if (DomainType != null)
+                Assemblies.Add(DomainType?.Assembly);
         }
 
         public virtual void ConfigureServices(IServiceCollection services)
         {
-
+            var serviceProvider = services.BuildServiceProvider();
+            Logger = serviceProvider.GetService<ILogger<BaseStartup>>();
             services.AddCustomMvc();
             services.AddSwaggerDocs();
             services.AddConsul();
             services.AddJwt();
             services.AddJaeger();
             services.AddRedis();
-            services.AddOpenTracing();
-            if (UseMongo) services.AddInitializers(typeof(IMongoDbInitializer));
-            services.AddAutoMapper(typeof(BaseStartup).Assembly, Assembly.GetEntryAssembly(), DomainType?.Assembly);
-            services.AddRepositories(typeof(BaseStartup).Assembly, Assembly.GetEntryAssembly());
+            //services.AddOpenTracing();
+            //if (UseMongo)
+            //services.AddInitializers(typeof(IMongoDbInitializer));
+            services.AddAutoMapper(Assemblies);
+            services.AddRepositories(Assemblies);
             if (UseCors)
                 services.AddCors(options =>
                 {
@@ -71,21 +93,48 @@ namespace MicroS_Common
                                 .AllowCredentials()
                                 .WithExposedHeaders(Headers));
                 });
-
+            ConfigureAuthorization(services);
+            services.RegisterAllServiceForwarders(Assembly.GetEntryAssembly());
+            if (UseSignalR)
+                services.AddSignalr();
         }
+
+        /*bool RegistryPredicate(Type t)
+        {
+            var res = !(typeof(IStartupInitializer).IsAssignableFrom(t)) || 
+                    !(typeof(IServiceForwarder).IsAssignableFrom(t)) //||
+                    //!(t.IsAssignableFrom(typeof(IStartupInitializer)))
+                    ;
+            Logger.LogInformation($"Register Try RegistryPredicate {res} of Type {t.Name}");
+            if (!res)
+                Debugger.Break();
+            return res;
+        }*/
+      //  bool RegisterInitilizePredicate(Type t)=> (t is IStartupInitializer) || (t is IServiceForwarder);
+
+        
         public virtual void ConfigureContainer(ContainerBuilder builder)
         {
+            var bld = builder.RegisterAssemblyTypes(Assemblies.ToArray());
+            if (!UseMongo)
+                bld.Except<MongoDbInitializer>();
+            bld.Except<StartupInitializer>().AsImplementedInterfaces().InstancePerLifetimeScope();
 
-            builder.RegisterAssemblyTypes(typeof(BaseStartup).Assembly).AsImplementedInterfaces();
-
-            builder.RegisterAssemblyTypes(Assembly.GetEntryAssembly()).AsImplementedInterfaces();
-            builder.RegisterAssemblyTypes(DomainType?.Assembly).AsImplementedInterfaces();
+            //builder.RegisterAssemblyTypes(Assemblies.ToArray()).Where(RegistryPredicate).AsImplementedInterfaces();
+            //builder.RegisterAssemblyTypes(typeof(BaseStartup).Assembly).Where(RegistryPredicate).AsImplementedInterfaces();
+            //builder.RegisterAssemblyTypes(Assembly.GetExecutingAssembly()).Where(RegistryPredicate).AsImplementedInterfaces();
+            //builder.RegisterAssemblyTypes(Assembly.GetEntryAssembly()).Where(RegistryPredicate).AsImplementedInterfaces();
+            //builder.RegisterAssemblyTypes(DomainType?.Assembly).Where(RegisterInitilizePredicate).AsImplementedInterfaces();
             //Used only for Identity Services
             builder.RegisterType<PasswordHasher<User>>().As<IPasswordHasher<User>>();
             builder.AddDispatchers();
             builder.AddRabbitMq();
             if (UseMongo)
-                builder.AddMongo(MongoDatabaseSeederType).AddRepositories(typeof(BaseStartup).Assembly, Assembly.GetEntryAssembly(), DomainType?.Assembly); ;
+                builder
+                    .AddMongo(/*MongoDatabaseSeederType*/)
+                    .AddRepositories(Assemblies); 
+
+            
         }
 
         public virtual void Configure(
@@ -97,24 +146,15 @@ namespace MicroS_Common
             IServiceProvider services,
            ILogger<BaseStartup> logger)
         {
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
-
-            app.UseAllForwardedHeaders();
-            if (UseCors)
-                app.UseCors("CorsPolicy");
-            app.UseSwaggerDocs();
-            app.UseErrorHandler();
-            app.UseServiceId();
-            app.UseMvc();
-            SubscribeEventAndMessageBus(app.UseRabbitMq());
-
             var consulServiceId = app.UseConsul();
-
             applicationLifetime.ApplicationStarted.Register(() =>
             {
+                startupInitializer.InitializeAsync();
                 logger.LogInformation($"{ApplicationOptions.Name} Service is started");
             });
 
@@ -123,16 +163,40 @@ namespace MicroS_Common
                 consulClient.Agent.ServiceDeregister(consulServiceId);
                 logger.LogInformation($"{ApplicationOptions.Name} Service is being stopping");
             });
+            if (UseCors)
+                app.UseCors("CorsPolicy");
+            app.UseAllForwardedHeaders();
+            app.UseStaticFiles();
+            app.UseSwaggerDocs();
+            app.UseErrorHandler();
+            app.UseServiceId();
+            app.UseAuthentication();/**/
+            app.UseAccessTokenValidator();/**/
+            if(UseSignalR)
+                app.UseSignalR(routes =>
+                {
+                    logger.LogInformation($"SignalR Hub Mapping on /{SignalROptions.Hub}");
+                    routes.MapHub<MicroSHub>($"/{SignalROptions.Hub}");
 
-            startupInitializer.InitializeAsync();
-
-           
-         
+                });
+            app.UseMvc();
+            SubscribeEventAndMessageBus(app.UseRabbitMq());
         }
         protected virtual void SubscribeEventAndMessageBus(IBusSubscriber bus)
         {
-
+            if (UseSignalR)
+            {
+                bus.SubscribeEvent<OperationPending>(@namespace: "operations")
+                .SubscribeEvent<OperationCompleted>(@namespace: "operations")
+                .SubscribeEvent<OperationRejected>(@namespace: "operations");
+            }
+            if(DomainType!=null)
+            bus.SubscribeAllMessages(true,DomainType.Assembly);
         }
 
+        protected virtual void ConfigureAuthorization(IServiceCollection services)
+        {
+
+        }
     }
 }

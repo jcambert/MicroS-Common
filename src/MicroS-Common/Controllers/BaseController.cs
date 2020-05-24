@@ -3,6 +3,7 @@ using MicroS_Common.Dispatchers;
 using MicroS_Common.Types;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using System;
 using System.Threading.Tasks;
 
@@ -14,13 +15,12 @@ namespace MicroS_Common.Controllers
     {
         protected IDispatcher Dispatcher { get; }
         protected IConfiguration Configuration { get; }
-        protected ApplicationOptions Options { get; }
-        public BaseController(IDispatcher dispatcher,IConfiguration configuration)
+        protected IOptions< AppOptions> Options { get; }
+        public BaseController(IDispatcher dispatcher,IConfiguration configuration,IOptions<AppOptions> appOptions)
         {
             Dispatcher = dispatcher;
             Configuration = configuration;
-            ApplicationOptions options;
-            Options = configuration.TryGetOptions<ApplicationOptions>("app", out options) ? options : new ApplicationOptions() { Name = ApplicationOptions.DEFAULT_NAME };
+            Options = appOptions; //configuration.TryGetOptions<ApplicationOptions>("app", out options) ? options : new ApplicationOptions() { Name = ApplicationOptions.DEFAULT_NAME };
         }
         protected bool IsAdmin => User.IsInRole("admin");
 
@@ -30,7 +30,7 @@ namespace MicroS_Common.Controllers
         public IActionResult Ping() => Ok();*/
 
         [HttpGet("info")]
-        public virtual IActionResult Get() => Ok($"{Options.Name} Service");
+        public virtual IActionResult Get() => Ok($"{Options.Value.Name} Service");
 
         protected async Task<TResult> QueryAsync<TResult>(IQuery<TResult> query)
             => await Dispatcher.QueryAsync<TResult>(query);

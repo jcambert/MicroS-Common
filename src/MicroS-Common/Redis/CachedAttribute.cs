@@ -28,7 +28,7 @@ namespace MicroS_Common.Redis
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
             var redisOptions = context.HttpContext.RequestServices.GetRequiredService(typeof(RedisOptions)) as RedisOptions;
-            if (!redisOptions.Enabled)
+            if (!redisOptions.Enabled || !redisOptions.UseCache)
             {
                 await next();
                 return;
@@ -37,7 +37,7 @@ namespace MicroS_Common.Redis
           //  if (context.HttpContext.Request.Path.Value == "/spid/resultat_equipe_classement")
           //      Debugger.Break();
 #endif
-                var logger = context.HttpContext.RequestServices.GetRequiredService(typeof(ILogger<CachedAttribute>)) as ILogger<CachedAttribute>;
+            var logger = context.HttpContext.RequestServices.GetRequiredService(typeof(ILogger<CachedAttribute>)) as ILogger<CachedAttribute>;
             var cacheService = context.HttpContext.RequestServices.GetRequiredService(typeof(IResponseCacheService)) as IResponseCacheService;
             var cacheKey = GenerateCacheKeyfromRequest(context.HttpContext.Request);
             var cachedResponse = await cacheService.GetCachedResponseAsync(cacheKey);

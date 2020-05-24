@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using OpenTracing;
 using OpenTracing.Tag;
 using Polly;
@@ -26,13 +27,14 @@ namespace MicroS_Common.RabbitMq
         private readonly ITracer _tracer;
         private readonly int _retries;
         private readonly int _retryInterval;
-
+        private readonly IOptions<AppOptions> _appOptions;
         public BusSubscriber(IApplicationBuilder app)
         {
             _logger = app.ApplicationServices.GetService<ILogger<BusSubscriber>>();
             _serviceProvider = app.ApplicationServices.GetService<IServiceProvider>();
             _busClient = _serviceProvider.GetService<IBusClient>();
             _tracer = _serviceProvider.GetService<ITracer>();
+            _appOptions = _serviceProvider.GetService<IOptions<AppOptions>>();
             var options = _serviceProvider.GetService<RabbitMqOptions>();
 
             _retries = options.Retries >= 0 ? options.Retries : 3;
@@ -46,7 +48,11 @@ namespace MicroS_Common.RabbitMq
             _busClient.SubscribeAsync<TCommand, CorrelationContext>( async (command, correlationContext) =>
             {
                 var commandHandler = _serviceProvider.GetService<ICommandHandler<TCommand>>();
-
+                if (commandHandler == null)
+                {
+                    _logger.LogWarning($"{command.ToString()} EventHandler is not register in {_appOptions.Value.Name} SubscribeAsync");
+                    return new Ack();
+                }
                 return await TryHandleAsync(command, correlationContext,() => commandHandler.HandleAsync(command, correlationContext), onError);
             });
 
@@ -73,7 +79,11 @@ namespace MicroS_Common.RabbitMq
             _busClient.SubscribeAsync<TEvent, CorrelationContext>(async (@event, correlationContext) =>
             {
                 var eventHandler = _serviceProvider.GetService<IEventHandler<TEvent>>();
-
+                if (eventHandler == null)
+                {
+                    _logger.LogWarning($"{@event.ToString()} EventHandler is not register in {_appOptions.Value.Name} SubscribeEvent");
+                    return new Ack();
+                }
                 return await TryHandleAsync(@event, correlationContext,
                     () => eventHandler.HandleAsync(@event, correlationContext), onError);
             });

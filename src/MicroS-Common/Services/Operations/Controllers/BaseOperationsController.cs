@@ -1,9 +1,11 @@
-﻿using MicroS_Common.Controllers;
+﻿using Chronicle;
+using MicroS_Common.Controllers;
 using MicroS_Common.Dispatchers;
 using MicroS_Common.Services.Operations.Dto;
 using MicroS_Common.Services.Operations.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -16,14 +18,17 @@ namespace MicroS_Common.Services.Operations.Controllers
     {
         private readonly IOperationsStorage _operationsStorage;
 
-        public BaseOperationsController(IDispatcher dispatcher,
-            IOperationsStorage operationsStorage,IConfiguration config) : base(dispatcher,config)
+        public BaseOperationsController(
+            IDispatcher dispatcher,
+            IConfiguration config,
+            IOperationsStorage operationsStorage,
+            IOptions<AppOptions> appOptions) : base(dispatcher,config,appOptions)
         {
             _operationsStorage = operationsStorage;
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<OperationDto>> Get(Guid id)
+        public async Task<ActionResult<OperationDto>> Get(/*Guid*/string id)
             => Single(await _operationsStorage.GetAsync(id));
     }
 }

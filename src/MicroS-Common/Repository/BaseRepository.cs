@@ -20,8 +20,8 @@ namespace MicroS_Common.Repository
         }
 
 
-        public async Task<PagedResult<TDomain>> BrowseAsync(TBrowse query)=>await Repository.BrowseAsync(query);
-        public async Task<PagedResult<TDomain>> BrowseAsync<TBrowse>(Expression<Func<TDomain, bool>> predicate, TBrowse query)
+        public async virtual Task<PagedResult<TDomain>> BrowseAsync(TBrowse query) => await Repository.BrowseAsync(query);
+        public async virtual Task<PagedResult<TDomain>> BrowseAsync<TBrowse>(Expression<Func<TDomain, bool>> predicate, TBrowse query)
             where TBrowse : PagedQueryBase
             => await Repository.BrowseAsync(predicate, query);
 
@@ -43,7 +43,7 @@ namespace MicroS_Common.Repository
 
         public async virtual Task<bool> ExistsAsync(Expression<Func<TDomain, bool>> predicate) => await Repository.ExistsAsync(predicate);
 
-        public async Task<IEnumerable<TDomain>> FindAsync(string q) => await Repository.FindAsync(q);
+        public async virtual Task<IEnumerable<TDomain>> FindAsync(string q) => await Repository.FindAsync(q);
 
         public async virtual Task<TDomain> GetAsync(Guid id) => await Repository.GetAsync(id);
 

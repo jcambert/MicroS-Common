@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Chronicle;
+using System;
 
 namespace MicroS_Common.RabbitMq
 {
@@ -8,7 +9,7 @@ namespace MicroS_Common.RabbitMq
     /// </summary>
     public interface ICorrelationContext
     {
-        Guid Id { get; }
+        /*Guid*/string Id { get; }
         Guid UserId { get; }
         Guid ResourceId { get; }
         string TraceId { get; }

@@ -30,7 +30,7 @@ namespace MicroS_Common.RabbitMq
             builder.Register<RabbitMqOptions>(context =>
            {
                var configuration = context.Resolve<IConfiguration>();
-               var options = configuration.GetOptions<RabbitMqOptions>("rabbitMq");
+               var options = configuration.GetOptions<RabbitMqOptions>(RabbitMqOptions.SECTION);
 
                return options;
            }).SingleInstance();
@@ -38,7 +38,7 @@ namespace MicroS_Common.RabbitMq
             builder.Register(context =>
             {
                 var configuration = context.Resolve<IConfiguration>();
-                var options = configuration.GetOptions<RawRabbitConfiguration>("rabbitMq");
+                var options = configuration.GetOptions<RawRabbitConfiguration>(RabbitMqOptions.SECTION);
 
                 return options;
             }).SingleInstance();

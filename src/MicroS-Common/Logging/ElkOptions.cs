@@ -2,6 +2,7 @@
 {
     public class ElkOptions
     {
+        public const string SECTION = "elk";
         public bool Enabled { get; set; }
         public string Url { get; set; }
         public bool BasicAuthEnabled { get; set; }

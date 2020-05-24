@@ -1,14 +1,15 @@
-﻿using Chronicle;
-using MicroS_Common.Messages;
+﻿using MicroS_Common.Messages;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
+using System.Text;
 
-namespace MicroS_Common.Dispatchers.Operations.Events
+namespace MicroS_Common.Services.SignalR.Messages.Events
 {
     [MessageNamespace("operations")]
     public class OperationRejected : IEvent
     {
-        public /*Guid*/SagaId Id { get; }
+        public Guid Id { get; }
         public Guid UserId { get; }
         public string Name { get; }
         public string Resource { get; }
@@ -16,7 +17,7 @@ namespace MicroS_Common.Dispatchers.Operations.Events
         public string Message { get; }
 
         [JsonConstructor]
-        public OperationRejected(/*Guid*/SagaId id,
+        public OperationRejected(Guid id,
             Guid userId, string name, string resource,
             string code, string message)
         {

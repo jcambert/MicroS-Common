@@ -8,6 +8,7 @@ using MicroS_Common.Services.Identity.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using System.Threading.Tasks;
 
 namespace MicroS_Common.Services.Identity.Controllers
@@ -24,7 +25,8 @@ namespace MicroS_Common.Services.Identity.Controllers
             IRefreshTokenService refreshTokenService, 
             IBusPublisher busPublisher,
             IDispatcher dispatcher,
-            IConfiguration configuration) :base(dispatcher,configuration)
+            IConfiguration configuration,
+            IOptions<AppOptions> appOptions) :base(dispatcher,configuration, appOptions)
         {
             _identityService = identityService;
             _refreshTokenService = refreshTokenService;

@@ -7,6 +7,7 @@ using MicroS_Common.Services.Identity.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -25,7 +26,8 @@ namespace MicroS_Common.Services.Identity.Controllers
             IAccessTokenService accessTokenService,
             IRefreshTokenService refreshTokenService,
             IDispatcher dispatcher,
-            IConfiguration configuration) :base(dispatcher,configuration)
+            IConfiguration configuration,
+            IOptions<AppOptions> appOptions) :base(dispatcher,configuration, appOptions)
         {
             _accessTokenService = accessTokenService;
             _refreshTokenService = refreshTokenService;

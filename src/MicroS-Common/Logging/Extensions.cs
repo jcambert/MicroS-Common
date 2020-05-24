@@ -11,10 +11,10 @@ namespace MicroS_Common.Logging
         public static IWebHostBuilder UseLogging(this IWebHostBuilder webHostBuilder, string applicationName = null)
             => webHostBuilder.UseSerilog((context, loggerConfiguration) =>
             {
-                var appOptions = context.Configuration.GetOptions<AppOptions>("app");
-                var elkOptions = context.Configuration.GetOptions<ElkOptions>("elk");
-                var seqOptions = context.Configuration.GetOptions<SeqOptions>("seq");
-                var serilogOptions = context.Configuration.GetOptions<SerilogOptions>("serilog");
+                var appOptions = context.Configuration.GetOptions<AppOptions>(AppOptions.SECTION);
+                var elkOptions = context.Configuration.GetOptions<ElkOptions>(ElkOptions.SECTION);
+                var seqOptions = context.Configuration.GetOptions<SeqOptions>(SeqOptions.SECTION);
+                var serilogOptions = context.Configuration.GetOptions<SerilogOptions>(SerilogOptions.SECTION);
                 if (!Enum.TryParse<LogEventLevel>(serilogOptions.Level, true, out var level))
                 {
                     level = LogEventLevel.Information;

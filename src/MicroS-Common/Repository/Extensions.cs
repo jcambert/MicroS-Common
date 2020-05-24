@@ -1,10 +1,15 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 namespace MicroS_Common.Repository
 {
     public static class Extensions
     {
+        public static IServiceCollection AddRepositories(this IServiceCollection services, IEnumerable<Assembly> assemblies)
+        => services.AddRepositories(assemblies.ToArray());
+        
+
         public static IServiceCollection AddRepositories(this IServiceCollection services, params Assembly[] assemblies)
         {
             var typesWithMyAttribute_ =

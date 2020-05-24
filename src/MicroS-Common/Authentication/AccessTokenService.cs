@@ -16,7 +16,7 @@ namespace MicroS_Common.Authentication
 
         public AccessTokenService(IDistributedCache cache,
                 IHttpContextAccessor httpContextAccessor,
-                IOptions<JwtOptions> jwtOptions)
+                IOptions< JwtOptions> jwtOptions)
         {
             _cache = cache;
             _httpContextAccessor = httpContextAccessor;

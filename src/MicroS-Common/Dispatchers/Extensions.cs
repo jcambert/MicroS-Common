@@ -46,7 +46,9 @@ namespace MicroS_Common.Dispatchers
         });
 
         public static IBusSubscriber SubscribeAllMessages(this IBusSubscriber subscriber,bool excludeOperationsMessages=false, params Assembly[] assemblies)
-            => subscriber.SubscribeAllCommands(excludeOperationsMessages,assemblies).SubscribeAllEvents(excludeOperationsMessages,assemblies);
+            => subscriber
+            .SubscribeAllCommands(excludeOperationsMessages,assemblies)
+            .SubscribeAllEvents(excludeOperationsMessages,assemblies);
 
         private static IBusSubscriber SubscribeAllCommands(this IBusSubscriber subscriber, bool excludeOperationsMessages = false, params Assembly[] assemblies)
             => subscriber.SubscribeAllMessages<ICommand>(nameof(IBusSubscriber.SubscribeCommand), excludeOperationsMessages, assemblies);

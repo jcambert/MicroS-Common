@@ -25,6 +25,8 @@ namespace MicroS_Common.Services.Operations.Handlers
 
         public async Task HandleAsync(T @event, ICorrelationContext context)
         {
+           /* if ((@event is OperationCompleted) || (@event is OperationPending) || (@event is OperationRejected))
+                return;*/
             if (@event.BelongsToSaga())
             {
                 var sagaContext = SagaContext.FromCorrelationContext(context);

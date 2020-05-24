@@ -1,4 +1,5 @@
-﻿using MicroS_Common.Services.Operations.Dto;
+﻿using Chronicle;
+using MicroS_Common.Services.Operations.Dto;
 using Microsoft.Extensions.Caching.Distributed;
 using Newtonsoft.Json;
 using System;
@@ -15,13 +16,13 @@ namespace MicroS_Common.Services.Operations.Services
             _cache = cache;
         }
 
-        public async Task SetAsync(Guid id, Guid userId, string name, OperationState state,
+        public async Task SetAsync(/*Guid*/SagaId id, Guid userId, string name, OperationState state,
             string resource, string code = null, string reason = null)
         {
             var newState = state.ToString().ToLowerInvariant();
             var operation = await GetAsync(id);
             operation = operation ?? new OperationDto();
-            operation.Id = id;
+            operation.Id =  string.IsNullOrEmpty( id)?SagaId.NewSagaId():id;
             operation.UserId = userId;
             operation.Name = name;
             operation.State = newState;
@@ -29,7 +30,7 @@ namespace MicroS_Common.Services.Operations.Services
             operation.Code = code ?? string.Empty;
             operation.Reason = reason ?? string.Empty;
 
-            await _cache.SetStringAsync(id.ToString("N"),
+            await _cache.SetStringAsync(operation.Id,
                 JsonConvert.SerializeObject(operation),
                 new DistributedCacheEntryOptions
                 {
@@ -38,9 +39,10 @@ namespace MicroS_Common.Services.Operations.Services
                 });
         }
 
-        public async Task<OperationDto> GetAsync(Guid id)
+        public async Task<OperationDto> GetAsync(/*Guid*/string id)
         {
-            var operation = await _cache.GetStringAsync(id.ToString("N"));
+            if (string.IsNullOrEmpty(id)) return null;
+            var operation = await _cache.GetStringAsync(id);
 
             return string.IsNullOrWhiteSpace(operation) ? null : JsonConvert.DeserializeObject<OperationDto>(operation);
         }

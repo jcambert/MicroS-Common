@@ -5,30 +5,36 @@ using MongoDB.Driver;
 using System;
 using System.Reflection;
 using System.Linq;
+using System.Collections.Generic;
+using Microsoft.Extensions.Options;
+
 namespace MicroS_Common.Mongo
 {
     public static class Extensions
     {
-        public static ContainerBuilder AddMongo(this ContainerBuilder builder, Type seederType = null)
+        public static ContainerBuilder AddMongo(this ContainerBuilder builder/*, Type seederType = null*/)
         {
+            //var config=builder.Build().Resolve<IConfiguration>();
+            //var options= config.GetOptions<MongoDbOptions>(MongoDbOptions.SECTION);
+            //if (string.IsNullOrEmpty(options.ConnectionString)) return builder;
             builder.Register(context =>
             {
                 var configuration = context.Resolve<IConfiguration>();
-                var options = configuration.GetOptions<MongoDbOptions>("mongo");
+                var options = configuration.GetOptions<MongoDbOptions>(MongoDbOptions.SECTION);
 
                 return options;
             }).SingleInstance();
 
             builder.Register(context =>
             {
-                var options = context.Resolve<MongoDbOptions>();
-
+               var options = context.Resolve< MongoDbOptions>();
+                
                 return new MongoClient(options.ConnectionString);
             }).SingleInstance();
 
             builder.Register(context =>
             {
-                var options = context.Resolve<MongoDbOptions>();
+                var options = context.Resolve< MongoDbOptions>();
                 var client = context.Resolve<MongoClient>();
                 return client.GetDatabase(options.Database);
 
@@ -38,14 +44,15 @@ namespace MicroS_Common.Mongo
                 .As<IMongoDbInitializer>()
                 .InstancePerLifetimeScope();
 
-            if (seederType == null)
+            
+            /*if (seederType == null)
                 builder.RegisterType<MongoDbSeeder>()
                     .As<IMongoDbSeeder>()
                     .InstancePerLifetimeScope();
             else
                 builder.RegisterType(seederType)
                .As<IMongoDbSeeder>()
-               .InstancePerLifetimeScope();
+               .InstancePerLifetimeScope();*/
             return builder;
         }
 
@@ -59,6 +66,9 @@ namespace MicroS_Common.Mongo
         public static ContainerBuilder AddMongoRepository<TEntity>(this ContainerBuilder builder, string collectionName)
             where TEntity : IIdentifiable
         {
+            //var config = builder.Build().Resolve<IConfiguration>();
+            //var options = config.GetOptions<MongoDbOptions>(MongoDbOptions.SECTION);
+            //if (string.IsNullOrEmpty(options.ConnectionString)) return builder;
             builder.Register(ctx => new MongoRepository<TEntity>(ctx.Resolve<IMongoDatabase>(), collectionName))
                   .As<IMongoRepository<TEntity>>()
                   .InstancePerLifetimeScope();
@@ -81,6 +91,9 @@ namespace MicroS_Common.Mongo
 
             return builder;
         }
+
+        public static ContainerBuilder AddRepositories(this ContainerBuilder builder, IEnumerable<Assembly> assemblies)
+        => builder.AddRepositories(assemblies.ToArray());
 
         public static ContainerBuilder AddRepositories(this ContainerBuilder builder, params Assembly[] assemblies)
         {

@@ -24,13 +24,13 @@ namespace MicroS_Common.Mvc
             using (var serviceProvider = services.BuildServiceProvider())
             {
                 var configuration = serviceProvider.GetService<IConfiguration>();
-                services.Configure<AppOptions>(configuration.GetSection("app"));
+                services.Configure<AppOptions>(configuration.GetSection(AppOptions.SECTION));
             }
-
+            
             services.AddSingleton<IServiceId, ServiceId>();
-            services.AddTransient<IStartupInitializer, StartupInitializer>();
+            //services.AddTransient<IStartupInitializer, StartupInitializer>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-
+            services.AddInitializers();
             return services
                 .AddMvcCore(o =>
                {
@@ -57,19 +57,21 @@ namespace MicroS_Common.Mvc
         }
 
         public static IServiceCollection AddInitializers(this IServiceCollection services, params Type[] initializers)
-            => initializers == null
-                ? services
-                : services.AddTransient<IStartupInitializer, StartupInitializer>(c =>
-                {
-                    var startupInitializer = new StartupInitializer();
-                    var validInitializers = initializers.Where(t => typeof(IInitializer).IsAssignableFrom(t));
-                    foreach (var initializer in validInitializers)
-                    {
-                        startupInitializer.AddInitializer(c.GetService(initializer) as IInitializer);
-                    }
+        {
+            services.AddTransient<IStartupInitializer, StartupInitializer>(c =>
+             {
+                 var startupInitializer = new StartupInitializer();
+                 var services = c.GetServices<IInitializer>();
+                 /*var validInitializers = initializers.Where(t => typeof(IInitializer).IsAssignableFrom(t));
+                 */foreach (var initializer in services)
+                 {
+                     startupInitializer.AddInitializer(initializer);
+                 }
 
-                    return startupInitializer;
-                });
+                 return startupInitializer;
+             });
+            return services;
+        }
 
         /*  public static IMvcCoreBuilder AddDefaultJsonOptions(this IMvcCoreBuilder builder)
               => builder.AddJsonOptions (o =>

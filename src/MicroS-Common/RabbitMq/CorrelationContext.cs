@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Chronicle;
+using Newtonsoft.Json;
 using System;
 
 namespace MicroS_Common.RabbitMq
@@ -8,7 +9,7 @@ namespace MicroS_Common.RabbitMq
         public string ConnectionId { get; }
         public DateTime CreatedAt { get; }
         public string Culture { get; }
-        public Guid Id { get; }
+        public /*Guid*/string Id { get; }
         public string Name { get; }
         public string Origin { get; }
         public string Resource { get; }
@@ -21,13 +22,13 @@ namespace MicroS_Common.RabbitMq
         {
         }
 
-        private CorrelationContext(Guid id)
+        private CorrelationContext(/*Guid*/string id)
         {
             Id = id;
         }
 
         [JsonConstructor]
-        private CorrelationContext(Guid id, Guid userId, Guid resourceId, string traceId, string spanContext,
+        private CorrelationContext(/*Guid*/string id, Guid userId, Guid resourceId, string traceId, string spanContext,
             string connectionId, string executionId, string name, string origin, string culture, string resource, int retries)
         {
             Id = id;
@@ -48,14 +49,14 @@ namespace MicroS_Common.RabbitMq
         public static ICorrelationContext Empty
             => new CorrelationContext();
 
-        public static ICorrelationContext FromId(Guid id)
+        public static ICorrelationContext FromId(/*Guid*/string id)
             => new CorrelationContext(id);
 
         public static ICorrelationContext From<T>(ICorrelationContext context)
             => Create<T>(context.Id, context.UserId, context.ResourceId, context.TraceId, context.ConnectionId,
                 context.Origin, context.Culture, context.Resource);
 
-        public static ICorrelationContext Create<T>(Guid id, Guid userId, Guid resourceId, string origin,
+        public static ICorrelationContext Create<T>(/*Guid*/string id, Guid userId, Guid resourceId, string origin,
             string traceId, string spanContext, string connectionId, string culture, string resource = "")
             => new CorrelationContext(id, userId, resourceId, traceId, spanContext, connectionId, string.Empty, typeof(T).Name, origin, culture,
                 resource, 0);

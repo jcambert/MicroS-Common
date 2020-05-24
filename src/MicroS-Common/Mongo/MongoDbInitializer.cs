@@ -16,8 +16,8 @@ namespace MicroS_Common.Mongo
         private readonly IMongoDbSeeder _seeder;
 
         public MongoDbInitializer(IMongoDatabase database,
-            IMongoDbSeeder seeder,
-            MongoDbOptions options)
+            MongoDbOptions options,
+            IMongoDbSeeder seeder=null)
         {
             _database = database;
             _seeder = seeder;
