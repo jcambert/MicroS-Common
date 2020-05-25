@@ -1,10 +1,10 @@
-﻿using MicroS_Common.Applications;
-using MicroS_Common.Dispatchers;
+﻿using MicroS_Common.Dispatchers;
 using MicroS_Common.Types;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace MicroS_Common.Controllers
@@ -13,6 +13,12 @@ namespace MicroS_Common.Controllers
     [Route("[controller]")]
     public class BaseController : ControllerBase
     {
+        private const string AcceptLanguageHeader = "accept-language";
+        private const string OperationHeader = "X-Operation";
+        private const string ResourceHeader = "X-Resource";
+        private const string DefaultCulture = "fr-fr";
+        private const string PageLink = "page";
+
         protected IDispatcher Dispatcher { get; }
         protected IConfiguration Configuration { get; }
         protected IOptions< AppOptions> Options { get; }
@@ -20,14 +26,13 @@ namespace MicroS_Common.Controllers
         {
             Dispatcher = dispatcher;
             Configuration = configuration;
-            Options = appOptions; //configuration.TryGetOptions<ApplicationOptions>("app", out options) ? options : new ApplicationOptions() { Name = ApplicationOptions.DEFAULT_NAME };
+            Options = appOptions; 
         }
         protected bool IsAdmin => User.IsInRole("admin");
 
         protected Guid UserId=> string.IsNullOrWhiteSpace(User?.Identity?.Name) ?Guid.Empty : Guid.Parse(User.Identity.Name);
 
-        /*[HttpGet("ping"),HttpHead]
-        public IActionResult Ping() => Ok();*/
+
 
         [HttpGet("info")]
         public virtual IActionResult Get() => Ok($"{Options.Value.Name} Service");
@@ -35,24 +40,82 @@ namespace MicroS_Common.Controllers
         protected async Task<TResult> QueryAsync<TResult>(IQuery<TResult> query)
             => await Dispatcher.QueryAsync<TResult>(query);
 
-        protected ActionResult<T> Single<T>(T data)
+        protected ActionResult<T> Single<T>(T model, Func<T, bool> criteria = null)
         {
-            if (data == null)
+            if (model == null)
             {
                 return NotFound();
             }
+            var isValid = criteria == null || criteria(model);
+            if (isValid)
+            {
+                return Ok(model);
+            }
 
-            return Ok(data);
+            return NotFound();
         }
 
-        protected ActionResult<PagedResult<T>> Collection<T>(PagedResult<T> pagedResult)
+        protected ActionResult<PagedResult<T>> Collection<T>(PagedResult<T> pagedResult, Func<PagedResult<T>, bool> criteria = null)
         {
             if (pagedResult == null)
             {
                 return NotFound();
             }
+            var isValid = criteria == null || criteria(pagedResult);
+            if (!isValid)
+            {
+                return NotFound();
+            }
+            if (pagedResult.IsEmpty)
+            {
+                return Ok(PagedResult<T>.Empty);
+            }
+            Response.Headers.Add("Link", GetLinkHeader(pagedResult));
+            Response.Headers.Add("X-Total-Count", pagedResult.TotalResults.ToString());
 
             return Ok(pagedResult);
         }
+
+        protected string Culture
+            => Request.Headers.ContainsKey(AcceptLanguageHeader) ?
+                    Request.Headers[AcceptLanguageHeader].First().ToLowerInvariant() :
+                    DefaultCulture;
+
+        protected string GetLinkHeader(PagedResultBase result)
+        {
+            var first = GetPageLink(result.CurrentPage, 1);
+            var last = GetPageLink(result.CurrentPage, result.TotalPages);
+            var prev = string.Empty;
+            var next = string.Empty;
+            if (result.CurrentPage > 1 && result.CurrentPage <= result.TotalPages)
+            {
+                prev = GetPageLink(result.CurrentPage, result.CurrentPage - 1);
+            }
+            if (result.CurrentPage < result.TotalPages)
+            {
+                next = GetPageLink(result.CurrentPage, result.CurrentPage + 1);
+            }
+
+            return $"{FormatLink(next, "next")}{FormatLink(last, "last")}" +
+                   $"{FormatLink(first, "first")}{FormatLink(prev, "prev")}";
+        }
+
+        private string GetPageLink(int currentPage, int page)
+        {
+            var path = Request.Path.HasValue ? Request.Path.ToString() : string.Empty;
+            var queryString = Request.QueryString.HasValue ? Request.QueryString.ToString() : string.Empty;
+            var conjunction = string.IsNullOrWhiteSpace(queryString) ? "?" : "&";
+            var fullPath = $"{path}{queryString}";
+            var pageArg = $"{PageLink}={page}";
+            var link = fullPath.Contains($"{PageLink}=",StringComparison.InvariantCulture)
+                ? fullPath.Replace($"{PageLink}={currentPage}", pageArg,StringComparison.InvariantCulture)
+                : fullPath += $"{conjunction}{pageArg}";
+
+            return link;
+        }
+
+        private static string FormatLink(string path, string rel)
+            => string.IsNullOrWhiteSpace(path) ? string.Empty : $"<{path}>; rel=\"{rel}\",";
+
     }
 }
