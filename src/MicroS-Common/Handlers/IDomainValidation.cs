@@ -1,5 +1,5 @@
 ﻿using MicroS_Common.Types;
-
+/*
 namespace MicroS_Common.Handlers
 {
     public interface IDomainValidation<T>
@@ -7,4 +7,4 @@ namespace MicroS_Common.Handlers
     {
         void Validate(T entity);
     }
-}
+}*/

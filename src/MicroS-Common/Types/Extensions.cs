@@ -1,14 +1,27 @@
-﻿using System;
+﻿using MicroS_Common.Domain;
+using System;
 
 namespace MicroS_Common.Types
 {
 #pragma warning disable IDE0060
     public static class Extensions
     {
-        public static void Validate<TEntity, T>(this TEntity entity, Func<T> p, Func<T, bool> check, string code, string reason)
+        public static void Validate<TEntity,T>(this TEntity entity, ref T backingField, Func<TEntity,T> transform,Func<T,bool> validate,string code,string reason,IValidateContext context)
             where TEntity : BaseEntity
         {
-            if (check(p()))
+            try
+            {
+                T value = transform(entity);
+                entity.SetProperty(ref backingField, value, validate, code, reason);
+            }catch(ValidationException e)
+            {
+                context.AddMessage(e.Message);
+            }
+        }
+        public static void Validate<TEntity, T>(this TEntity entity, Func<T> transform, Func<T, bool> validate, string code, string reason)
+            where TEntity : BaseEntity
+        {
+            if (validate(transform()))
             {
                 throw new ValidationException(code, reason);
             }

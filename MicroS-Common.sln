@@ -3,12 +3,16 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29209.152
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MicroS-Common", "src\MicroS-Common\MicroS-Common.csproj", "{F5F011AB-32B9-486E-9882-8BACBAD7C7D8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MicroS-Common", "src\MicroS-Common\MicroS-Common.csproj", "{F5F011AB-32B9-486E-9882-8BACBAD7C7D8}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{63F874C4-CDA7-4F3E-8566-D89CB44BC06B}"
 	ProjectSection(SolutionItems) = preProject
 		README.md = README.md
 	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libs", "Libs", "{3CF2D7DD-F474-43CC-A05B-BF1CFAF26CFA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeCommon", "..\WeStrap\src\WeCommon\WeCommon.csproj", "{836B2D56-0C2B-4AD3-8797-FCE8C3F83FBC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -20,9 +24,16 @@ Global
 		{F5F011AB-32B9-486E-9882-8BACBAD7C7D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F5F011AB-32B9-486E-9882-8BACBAD7C7D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F5F011AB-32B9-486E-9882-8BACBAD7C7D8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{836B2D56-0C2B-4AD3-8797-FCE8C3F83FBC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{836B2D56-0C2B-4AD3-8797-FCE8C3F83FBC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{836B2D56-0C2B-4AD3-8797-FCE8C3F83FBC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{836B2D56-0C2B-4AD3-8797-FCE8C3F83FBC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{836B2D56-0C2B-4AD3-8797-FCE8C3F83FBC} = {3CF2D7DD-F474-43CC-A05B-BF1CFAF26CFA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {58F9F34D-8E4F-43F3-9138-9F843F031176}

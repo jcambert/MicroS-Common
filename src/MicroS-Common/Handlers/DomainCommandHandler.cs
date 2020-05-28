@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using MicroS_Common.Domain;
 using MicroS_Common.Messages;
 using MicroS_Common.RabbitMq;
 using MicroS_Common.Repository;
@@ -14,7 +15,7 @@ namespace MicroS_Common.Handlers
 
 
         public DomainCommandHandler(IBusPublisher busPublisher,
-            IMapper mapper, IRepository<TDomain> repo, IDomainValidation<TDomain> validator = null) : base(busPublisher, mapper)
+            IMapper mapper, IRepository<TDomain> repo, IValidate<TDomain> validator = null) : base(busPublisher, mapper)
         {
             Repository = repo;
             Validator = validator;
@@ -25,7 +26,7 @@ namespace MicroS_Common.Handlers
             => Mapper.Map<TCommand, TEvent>(command);
 
         public IRepository<TDomain> Repository { get; }
-        public IDomainValidation<TDomain> Validator { get; }
+        public IValidate<TDomain> Validator { get; }
 
         protected virtual Task CheckExist(TDomain entity)
         {
@@ -34,7 +35,7 @@ namespace MicroS_Common.Handlers
 
         protected virtual void Validate(TDomain entity)
         {
-            Validator?.Validate(entity);
+            Validator?.IsValide(entity);
         }
         public override async Task HandleAsync(TCommand command, ICorrelationContext context)
         {
