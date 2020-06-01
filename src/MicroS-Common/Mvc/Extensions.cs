@@ -130,14 +130,15 @@ namespace MicroS_Common.Mvc
             var modelType = model.GetType();
             var fields = modelType.GetFields(BindingFlags.Instance | BindingFlags.NonPublic);
 
-            if (logger != null)
+            /*if (logger != null)
                 fields.ToList().ForEach(f =>
                 {
                     logger.LogError(f.Name);
-                });
+                });*/
             var field = fields.SingleOrDefault(x => x.Name.ToLowerInvariant().StartsWith($"<{propertyName}>"));
             if (field == null)
             {
+                if (logger != null) logger.LogError($"Cannot bind {propertyName}");
                 return model;
             }
 
