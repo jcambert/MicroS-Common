@@ -8,6 +8,7 @@ using MicroS_Common.Authentication;
 using MicroS_Common.Consul;
 using MicroS_Common.Dispatchers;
 using MicroS_Common.Dispatchers.Operations.Events;
+using MicroS_Common.Domain;
 using MicroS_Common.Jeager;
 using MicroS_Common.Mongo;
 using MicroS_Common.Mvc;
@@ -49,7 +50,7 @@ namespace MicroS_Common
         public bool UseMongo { get; }
         protected virtual bool UseCors => false;
         protected abstract Type DomainType { get; }
-        private Type MongoDatabaseSeederType => Assembly.GetEntryAssembly().GetTypes().Where(t => t.IsSubclassOf(typeof(MongoDbSeeder))).FirstOrDefault();
+        //private Type MongoDatabaseSeederType => Assembly.GetEntryAssembly().GetTypes().Where(t => t.IsSubclassOf(typeof(MongoDbSeeder))).FirstOrDefault();
         List<Assembly> Assemblies { get; }
         public BaseStartup(IConfiguration configuration)
         {
@@ -78,8 +79,6 @@ namespace MicroS_Common
             services.AddJaeger();
             services.AddRedis();
             //services.AddOpenTracing();
-            //if (UseMongo)
-            //services.AddInitializers(typeof(IMongoDbInitializer));
             services.AddAutoMapper(Assemblies);
             services.AddRepositories(Assemblies);
             if (UseCors)
@@ -97,20 +96,8 @@ namespace MicroS_Common
             services.RegisterAllServiceForwarders(Assembly.GetEntryAssembly());
             if (UseSignalR)
                 services.AddSignalr();
+            
         }
-
-        /*bool RegistryPredicate(Type t)
-        {
-            var res = !(typeof(IStartupInitializer).IsAssignableFrom(t)) || 
-                    !(typeof(IServiceForwarder).IsAssignableFrom(t)) //||
-                    //!(t.IsAssignableFrom(typeof(IStartupInitializer)))
-                    ;
-            Logger.LogInformation($"Register Try RegistryPredicate {res} of Type {t.Name}");
-            if (!res)
-                Debugger.Break();
-            return res;
-        }*/
-      //  bool RegisterInitilizePredicate(Type t)=> (t is IStartupInitializer) || (t is IServiceForwarder);
 
         
         public virtual void ConfigureContainer(ContainerBuilder builder)
@@ -120,21 +107,14 @@ namespace MicroS_Common
                 bld.Except<MongoDbInitializer>();
             bld.Except<StartupInitializer>().AsImplementedInterfaces().InstancePerLifetimeScope();
 
-            //builder.RegisterAssemblyTypes(Assemblies.ToArray()).Where(RegistryPredicate).AsImplementedInterfaces();
-            //builder.RegisterAssemblyTypes(typeof(BaseStartup).Assembly).Where(RegistryPredicate).AsImplementedInterfaces();
-            //builder.RegisterAssemblyTypes(Assembly.GetExecutingAssembly()).Where(RegistryPredicate).AsImplementedInterfaces();
-            //builder.RegisterAssemblyTypes(Assembly.GetEntryAssembly()).Where(RegistryPredicate).AsImplementedInterfaces();
-            //builder.RegisterAssemblyTypes(DomainType?.Assembly).Where(RegisterInitilizePredicate).AsImplementedInterfaces();
-            //Used only for Identity Services
+             //Used only for Identity Services
             builder.RegisterType<PasswordHasher<User>>().As<IPasswordHasher<User>>();
             builder.AddDispatchers();
             builder.AddRabbitMq();
             if (UseMongo)
                 builder
-                    .AddMongo(/*MongoDatabaseSeederType*/)
-                    .AddRepositories(Assemblies); 
-
-            
+                    .AddMongo()
+                    .AddRepositories(Assemblies);
         }
 
         public virtual void Configure(
@@ -146,7 +126,7 @@ namespace MicroS_Common
             IServiceProvider services,
            ILogger<BaseStartup> logger)
         {
-
+            
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -170,8 +150,8 @@ namespace MicroS_Common
             app.UseSwaggerDocs();
             app.UseErrorHandler();
             app.UseServiceId();
-            app.UseAuthentication();/**/
-            app.UseAccessTokenValidator();/**/
+            app.UseAuthentication();
+            app.UseAccessTokenValidator();
             if(UseSignalR)
                 app.UseSignalR(routes =>
                 {
@@ -190,8 +170,12 @@ namespace MicroS_Common
                 .SubscribeEvent<OperationCompleted>(@namespace: "operations")
                 .SubscribeEvent<OperationRejected>(@namespace: "operations");
             }
-            if(DomainType!=null)
-            bus.SubscribeAllMessages(true,DomainType.Assembly);
+
+            if (DomainType != null)
+            {
+                bus.SubscribeAllMessages(true, DomainType.Assembly);
+                //bus.SubscribeOnRejected(DomainType.Assembly);
+            }
         }
 
         protected virtual void ConfigureAuthorization(IServiceCollection services)

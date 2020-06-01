@@ -15,7 +15,7 @@ namespace MicroS_Common.Handlers
 
 
         public DomainCommandHandler(IBusPublisher busPublisher,
-            IMapper mapper, IRepository<TDomain> repo, IValidate<TDomain> validator = null) : base(busPublisher, mapper)
+            IMapper mapper, IRepository<TDomain> repo, IValidate<TDomain> validator =null,IValidateContext ctx=null) : base(busPublisher, mapper)
         {
             Repository = repo;
             Validator = validator;

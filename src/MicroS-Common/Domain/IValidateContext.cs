@@ -8,11 +8,15 @@ namespace MicroS_Common.Domain
         bool IsValid { get; }
         IEnumerable<string> GetMessages();
         void AddMessage(string message);
+        void Clear();
     }
     public class ValidateContext : IValidateContext
     {
+        public ValidateContext()
+        {
+
+        }
         WeStringBuilder sb = new WeStringBuilder();
-        bool _isValid = false;
         public bool IsValid => !sb.HasItems;
 
         public void AddMessage(string message)
@@ -23,6 +27,11 @@ namespace MicroS_Common.Domain
         public IEnumerable<string> GetMessages()=>  sb.AsEnumerable;
 
         public override string ToString() => sb.Join("\n");
+
+        public void Clear()
+        {
+            sb = new WeStringBuilder();
+        }
     }
 
 }

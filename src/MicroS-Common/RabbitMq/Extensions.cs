@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using MicroS_Common.Domain;
 using MicroS_Common.Handlers;
 using MicroS_Common.Jeager;
 using MicroS_Common.Messages;
@@ -44,6 +45,9 @@ namespace MicroS_Common.RabbitMq
             }).SingleInstance();
 
             var assembly = Assembly.GetCallingAssembly();
+            /*builder.RegisterAssemblyTypes(assembly)
+                .AsClosedTypesOf(typeof(IValidate<>))
+                .InstancePerDependency();*/
             builder.RegisterAssemblyTypes(assembly)
                 .AsClosedTypesOf(typeof(IEventHandler<>))
                 .InstancePerDependency();

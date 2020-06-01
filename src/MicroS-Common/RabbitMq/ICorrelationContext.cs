@@ -9,7 +9,7 @@ namespace MicroS_Common.RabbitMq
     /// </summary>
     public interface ICorrelationContext
     {
-        /*Guid*/string Id { get; }
+        string Id { get; }
         Guid UserId { get; }
         Guid ResourceId { get; }
         string TraceId { get; }
