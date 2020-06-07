@@ -3,6 +3,7 @@ using System;
 
 namespace MicroS_Common.Domain
 {
+    [AttributeUsage(AttributeTargets.Class,AllowMultiple =false,Inherited =false)]
     public class OnRejectedAttribute:Attribute
     {
         public OnRejectedAttribute(Type type)

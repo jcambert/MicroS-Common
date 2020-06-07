@@ -14,6 +14,7 @@ using RawRabbit;
 using RawRabbit.Common;
 using RawRabbit.Enrichers.MessageContext;
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace MicroS_Common.RabbitMq
@@ -100,12 +101,13 @@ namespace MicroS_Common.RabbitMq
             var currentRetry = 0;
             var retryPolicy = Policy
                 .Handle<Exception>()
-                .WaitAndRetryAsync(_retries, i => TimeSpan.FromSeconds(_retryInterval));
+                .WaitAndRetryAsync(_retries, i => TimeSpan.FromMilliseconds(_retryInterval));
 
             var messageName = message.GetType().Name;
 
             return await retryPolicy.ExecuteAsync<Acknowledgement>(async () =>
             {
+                _logger.LogInformation("-------------------------------------");
                 var scope = _tracer
                     .BuildSpan("executing-handler")
                     .AsChildOf(_tracer.ActiveSpan)
@@ -114,7 +116,9 @@ namespace MicroS_Common.RabbitMq
                 using (scope)
                 {
                     var span = scope.Span;
-
+#if DEBUG
+                    //Debugger.Break();
+#endif
                     try
                     {
                         var retryMessage = currentRetry == 0
@@ -139,7 +143,7 @@ namespace MicroS_Common.RabbitMq
                     catch (Exception exception)
                     {
                         currentRetry++;
-                        _logger.LogError(exception, exception.Message);
+                        //_logger.LogError(exception, exception.Message);
                         span.Log(exception.Message);
                         span.SetTag(Tags.Error, true);
 

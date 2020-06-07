@@ -4,6 +4,7 @@ using MicroS_Common.Messages;
 using MicroS_Common.RabbitMq;
 using MicroS_Common.Repository;
 using MicroS_Common.Types;
+using System;
 using System.Threading.Tasks;
 
 namespace MicroS_Common.Handlers
@@ -28,10 +29,8 @@ namespace MicroS_Common.Handlers
         public IRepository<TDomain> Repository { get; }
         public IValidate<TDomain> Validator { get; }
 
-        protected virtual Task CheckExist(TDomain entity)
-        {
-            return Task.CompletedTask;
-        }
+        protected virtual Task<bool> CheckExist(TDomain entity)=>this.CheckExist(entity.Id);
+        protected virtual Task<bool> CheckExist(Guid id) => Repository.ExistsAsync(id);
 
         protected virtual void Validate(TDomain entity)
         {
@@ -40,8 +39,8 @@ namespace MicroS_Common.Handlers
         public override async Task HandleAsync(TCommand command, ICorrelationContext context)
         {
             var domain = GetDomainObject(command);
-            await CheckExist(domain);
             Validate(domain);
+            await CheckExist(domain);
 
         }
 

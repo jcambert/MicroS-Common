@@ -174,7 +174,7 @@ namespace MicroS_Common
             if (DomainType != null)
             {
                 bus.SubscribeAllMessages(true, DomainType.Assembly);
-                //bus.SubscribeOnRejected(DomainType.Assembly);
+               // bus.SubscribeOnRejected(DomainType.Assembly);
             }
         }
 

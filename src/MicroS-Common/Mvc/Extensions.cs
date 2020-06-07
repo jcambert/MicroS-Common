@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -128,7 +129,7 @@ namespace MicroS_Common.Mvc
 
             var propertyName = memberExpression.Member.Name.ToLowerInvariant();
             var modelType = model.GetType();
-            var fields = modelType.GetFields(BindingFlags.Instance | BindingFlags.NonPublic);
+            var fields = modelType.GetAllFields();//  modelType.GetFields(/*BindingFlags.Instance | BindingFlags.NonPublic*/).Union(modelType.BaseType.GetFields());
 
             /*if (logger != null)
                 fields.ToList().ForEach(f =>
@@ -146,5 +147,27 @@ namespace MicroS_Common.Mvc
 
             return model;
         }
+
+        /// <summary>
+        /// Get all the fields of a class
+        /// </summary>
+        /// <param name="type">Type object of that class</param>
+        /// <returns></returns>
+        public static IEnumerable<FieldInfo> GetAllFields(this Type type)
+        {
+            if (type == null)
+            {
+                return Enumerable.Empty<FieldInfo>();
+            }
+
+            BindingFlags flags = BindingFlags.Public |
+                                 BindingFlags.NonPublic |
+                                 BindingFlags.Static |
+                                 BindingFlags.Instance |
+                                 BindingFlags.DeclaredOnly;
+
+            return type.GetFields(flags).Union(GetAllFields(type.BaseType));
+        }
+
     }
 }

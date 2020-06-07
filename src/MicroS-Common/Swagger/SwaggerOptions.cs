@@ -2,6 +2,7 @@
 {
     public class SwaggerOptions
     {
+        public const string SECTION = "swagger";
         public bool Enabled { get; set; }
         public bool ReDocEnabled { get; set; }
         public string Name { get; set; }

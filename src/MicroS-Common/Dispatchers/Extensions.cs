@@ -2,7 +2,9 @@
 using MicroS_Common.Dispatchers.Operations.Events;
 using MicroS_Common.Domain;
 using MicroS_Common.Messages;
+using MicroS_Common.Mvc;
 using MicroS_Common.RabbitMq;
+using MicroS_Common.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -50,11 +52,23 @@ namespace MicroS_Common.Dispatchers
             .SubscribeAllCommands(excludeOperationsMessages,assemblies)
             .SubscribeAllEvents(excludeOperationsMessages,assemblies);
 
-        private static IBusSubscriber SubscribeAllCommands(this IBusSubscriber subscriber, bool excludeOperationsMessages = false, params Assembly[] assemblies)
+        public static IBusSubscriber SubscribeAllCommands(this IBusSubscriber subscriber, bool excludeOperationsMessages = false, params Assembly[] assemblies)
             => subscriber.SubscribeAllMessages<ICommand>(nameof(IBusSubscriber.SubscribeCommand), excludeOperationsMessages, assemblies);
 
-        private static IBusSubscriber SubscribeAllEvents(this IBusSubscriber subscriber, bool excludeOperationsMessages = false, params Assembly[] assemblies)
+        public static IBusSubscriber SubscribeAllEvents(this IBusSubscriber subscriber, bool excludeOperationsMessages = false, params Assembly[] assemblies)
             => subscriber.SubscribeAllMessages<IEvent>(nameof(IBusSubscriber.SubscribeEvent), excludeOperationsMessages, assemblies);
+        
+        private static Func<BaseCommand, MicroSException,IRejectedEvent> CreateOnRejected(Type t)
+        {
+            
+            Type RejectedType= t.GetCustomAttribute<OnRejectedAttribute>()?.Type;
+            if (RejectedType == null) return null;
+            var ctor=RejectedType.GetConstructor(new[] { typeof(Guid), typeof(string), typeof(string) });
+            return (BaseCommand c, MicroSException e) => (IRejectedEvent)ctor.Invoke( new object[] { c.Id, e.Message, e.Code });
+            //return null;
+        }
+
+
 
         private static IBusSubscriber SubscribeAllMessages<TMessage>
             (this IBusSubscriber subscriber, string subscribeMethod, bool excludeOperationsMessages = false, params Assembly[] assemblies)
@@ -69,11 +83,15 @@ namespace MicroS_Common.Dispatchers
                 .Where(t => excludeOperationsMessages && !ExcludedMessages.Contains(t))
                 .ToList();
 
-                messageTypes.ForEach(mt => subscriber.GetType()
+                messageTypes.ForEach(mt => 
+                    subscriber.GetType()
                     .GetMethod(subscribeMethod)
                     .MakeGenericMethod(mt)
                     .Invoke(subscriber,
-                        new object[] { mt.GetCustomAttribute<MessageNamespaceAttribute>()?.Namespace, null, null }));
+                        new object[] {
+                            mt.GetCustomAttribute<MessageNamespaceAttribute>()?.Namespace,
+                            null,
+                            CreateOnRejected(mt) }));
             });
 
 

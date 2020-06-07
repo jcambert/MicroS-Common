@@ -56,8 +56,7 @@ namespace MicroS_Common.Services.Identity.Services
             var user = await _userRepository.GetAsync(email);
             if (user == null || !user.ValidatePassword(password, _passwordHasher))
             {
-                throw new MicroSException(Codes.InvalidCredentials,
-                    "Invalid credentials.");
+                throw new MicroSException(Codes.InvalidCredentials,"Invalid credentials.");
             }
             var refreshToken = new dto.RefreshToken(user, _passwordHasher);
             var claims = await _claimsProvider.GetAsync(user.Id);

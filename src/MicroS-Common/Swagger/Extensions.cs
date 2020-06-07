@@ -14,8 +14,8 @@ namespace MicroS_Common.Swagger
             using (var serviceProvider = services.BuildServiceProvider())
             {
                 var configuration = serviceProvider.GetService<IConfiguration>();
-                services.Configure<SwaggerOptions>(configuration.GetSection("swagger"));
-                options = configuration.GetOptions<SwaggerOptions>("swagger");
+                services.Configure<SwaggerOptions>(configuration.GetSection(SwaggerOptions.SECTION));
+                options = configuration.GetOptions<SwaggerOptions>(SwaggerOptions.SECTION);
             }
 
             if (!options.Enabled)
@@ -44,7 +44,7 @@ namespace MicroS_Common.Swagger
         public static IApplicationBuilder UseSwaggerDocs(this IApplicationBuilder builder)
         {
             var options = builder.ApplicationServices.GetService<IConfiguration>()
-                .GetOptions<SwaggerOptions>("swagger");
+                .GetOptions<SwaggerOptions>(SwaggerOptions.SECTION);
             if (!options.Enabled)
             {
                 return builder;
