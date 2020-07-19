@@ -1,5 +1,7 @@
-﻿using MicroS_Common.Dispatchers;
+﻿using MicroS_Common.Authentication;
+using MicroS_Common.Dispatchers;
 using MicroS_Common.Types;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
@@ -11,13 +13,18 @@ namespace MicroS_Common.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+#if !DEBUG
+    [JwtAuth]
+#else
+    [AllowAnonymous]
+#endif
     public class BaseController : ControllerBase
     {
-        private const string AcceptLanguageHeader = "accept-language";
-        private const string OperationHeader = "X-Operation";
-        private const string ResourceHeader = "X-Resource";
-        private const string DefaultCulture = "fr-fr";
-        private const string PageLink = "page";
+        protected const string AcceptLanguageHeader = "accept-language";
+        protected const string OperationHeader = "X-Operation";
+        protected const string ResourceHeader = "X-Resource";
+        protected const string DefaultCulture = "fr-fr";
+        protected const string PageLink = "page";
 
         protected IDispatcher Dispatcher { get; }
         protected IConfiguration Configuration { get; }
@@ -30,11 +37,11 @@ namespace MicroS_Common.Controllers
         }
         protected bool IsAdmin => User.IsInRole("admin");
 
-        protected Guid UserId=> string.IsNullOrWhiteSpace(User?.Identity?.Name) ?Guid.Empty : Guid.Parse(User.Identity.Name);
+        internal Guid UserId=> string.IsNullOrWhiteSpace(User?.Identity?.Name) ?Guid.Empty : Guid.Parse(User.Identity.Name);
 
 
 
-        [HttpGet("info")]
+        [HttpGet("info"),AllowAnonymous]
         public virtual IActionResult Get() => Ok($"{Options.Value.Name} Service");
 
         protected async Task<TResult> QueryAsync<TResult>(IQuery<TResult> query)

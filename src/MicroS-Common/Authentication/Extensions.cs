@@ -9,7 +9,7 @@ namespace MicroS_Common.Authentication
 {
     public static class Extensions
     {
-        private static readonly string SectionName = "jwt";
+       
 
         public static void AddJwt(this IServiceCollection services)
         {
@@ -18,8 +18,8 @@ namespace MicroS_Common.Authentication
             {
                 configuration = serviceProvider.GetService<IConfiguration>();
             }
-            var section = configuration.GetSection(SectionName);
-            var options = configuration.GetOptions<JwtOptions>(SectionName);
+            var section = configuration.GetSection(JwtOptions.SECTION_NAME);
+            var options = configuration.GetOptions<JwtOptions>(JwtOptions.SECTION_NAME);
             services.Configure<JwtOptions>(section);
             services.AddSingleton(options);
             services.AddSingleton<IJwtHandler, JwtHandler>();

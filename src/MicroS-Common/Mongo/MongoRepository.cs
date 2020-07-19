@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace MicroS_Common.Mongo
 {
-    public class MongoRepository<TEntity> : IMongoRepository<TEntity> where TEntity : IIdentifiable
+    public class MongoRepository<TEntity,TKey> : IMongoRepository<TEntity,TKey> where TEntity : IIdentifiable<TKey>
     {
         protected IMongoCollection<TEntity> Collection { get; }
 
@@ -20,8 +20,8 @@ namespace MicroS_Common.Mongo
             Collection = database.GetCollection<TEntity>(collectionName);
         }
 
-        public async Task<TEntity> GetAsync(Guid id)
-            => await GetAsync(e => e.Id == id);
+        public async Task<TEntity> GetAsync(TKey id)
+            => await GetAsync(e => e.Id.Equals( id));
 
         public async Task<TEntity> GetAsync(Expression<Func<TEntity, bool>> predicate)
             => await Collection.Find(predicate).SingleOrDefaultAsync();
@@ -56,10 +56,10 @@ namespace MicroS_Common.Mongo
             => await Collection.InsertOneAsync(entity);
 
         public async Task UpdateAsync(TEntity entity)
-            => await Collection.ReplaceOneAsync(e => e.Id == entity.Id, entity);
+            => await Collection.ReplaceOneAsync(e => e.Id.Equals(entity.Id), entity);
 
-        public async Task DeleteAsync(Guid id)
-            => await Collection.DeleteOneAsync(e => e.Id == id);
+        public async Task DeleteAsync(TKey id)
+            => await Collection.DeleteOneAsync(e => e.Id.Equals( id));
 
         public async Task<bool> ExistsAsync(Expression<Func<TEntity, bool>> predicate)
             => await Collection.Find(predicate).AnyAsync();

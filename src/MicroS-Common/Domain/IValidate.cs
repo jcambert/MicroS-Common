@@ -2,8 +2,8 @@
 
 namespace MicroS_Common.Domain
 {
-    public interface IValidate<TModel>
-         where TModel : BaseEntity
+    public interface IValidate<TModel,TKey>
+         where TModel : Entity<TKey>
     {
         void IsValide(TModel model);
     }

@@ -1,6 +1,7 @@
 ﻿using MicroS_Common.Mongo;
 using MicroS_Common.Types;
 using Microsoft.AspNetCore.Identity;
+using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Text.RegularExpressions;
 
@@ -13,7 +14,7 @@ namespace MicroS_Common.Services.Identity.Dto
             @"^(?("")("".+?(?<!\\)""@)|(([0-9a-z]((\.(?!\.))|[-!#\$%&'\*\+/=\?\^`\{\}\|~\w])*)(?<=[0-9a-z])@))" +
             @"(?(\[)(\[(\d{1,3}\.){3}\d{1,3}\])|(([0-9a-z][-\w]*[0-9a-z]*\.)+[a-z0-9][\-a-z0-9]{0,22}[a-z0-9]))$",
             RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.CultureInvariant);
-
+        [BsonId]
         public Guid Id { get; private set; }
         public string Email { get; private set; }
         public string Role { get; private set; }

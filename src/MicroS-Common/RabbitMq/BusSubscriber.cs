@@ -42,8 +42,11 @@ namespace MicroS_Common.RabbitMq
             _retryInterval = options.RetryInterval > 0 ? options.RetryInterval : 2;
         }
 
-        public IBusSubscriber SubscribeCommand<TCommand>(string @namespace = null, string queueName = null,
-            Func<TCommand, MicroSException, IRejectedEvent> onError = null)
+        public IBusSubscriber SubscribeCommand<TCommand>(
+            string @namespace = null,
+            string queueName = null,
+            Func<TCommand, MicroSException, IRejectedEvent> onError = null
+            )
             where TCommand : ICommand
         {
             _busClient.SubscribeAsync<TCommand, CorrelationContext>( async (command, correlationContext) =>

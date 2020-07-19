@@ -82,5 +82,12 @@ namespace MicroS_Common
             }
 
         }
+
+        public static string GetEnvironmentVariableValue(this string key)
+        {
+            var value = Environment.GetEnvironmentVariable(key);
+
+            return string.IsNullOrWhiteSpace(value) ? null : value;
+        }
     }
 }

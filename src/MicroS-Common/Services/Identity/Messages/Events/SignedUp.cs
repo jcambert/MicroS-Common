@@ -1,10 +1,9 @@
-﻿using MicroS_Common.Messages;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 
 namespace MicroS_Common.Services.Identity.Messages.Events
 {
-    public class SignedUp : IEvent
+    public class SignedUp :IdentityBase
     {
         public Guid UserId { get; }
         public string Email { get; }

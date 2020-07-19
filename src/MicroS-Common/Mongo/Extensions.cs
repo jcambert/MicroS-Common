@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Linq;
 using System.Collections.Generic;
 using Microsoft.Extensions.Options;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace MicroS_Common.Mongo
 {
@@ -63,14 +64,14 @@ namespace MicroS_Common.Mongo
         /// <param name="builder"></param>
         /// <param name="collectionName"></param>
         /// <returns></returns>
-        public static ContainerBuilder AddMongoRepository<TEntity>(this ContainerBuilder builder, string collectionName)
-            where TEntity : IIdentifiable
+        public static ContainerBuilder AddMongoRepository<TEntity,TKey>(this ContainerBuilder builder, string collectionName)
+            where TEntity : IIdentifiable<TKey>
         {
             //var config = builder.Build().Resolve<IConfiguration>();
             //var options = config.GetOptions<MongoDbOptions>(MongoDbOptions.SECTION);
             //if (string.IsNullOrEmpty(options.ConnectionString)) return builder;
-            builder.Register(ctx => new MongoRepository<TEntity>(ctx.Resolve<IMongoDatabase>(), collectionName))
-                  .As<IMongoRepository<TEntity>>()
+            builder.Register(ctx => new MongoRepository<TEntity,TKey>(ctx.Resolve<IMongoDatabase>(), collectionName))
+                  .As<IMongoRepository<TEntity,TKey>>()
                   .InstancePerLifetimeScope();
             return builder;
         }
@@ -86,7 +87,10 @@ namespace MicroS_Common.Mongo
 
         {
             var m0 = typeof(MicroS_Common.Mongo.Extensions).GetMethod("AddMongoRepository");
-            var m1 = m0.MakeGenericMethod(type);
+
+            var m3=type.GetProperties().Where(p => p.GetCustomAttribute(typeof(BsonIdAttribute)) != null).FirstOrDefault()?.GetGetMethod().ReturnType;
+
+            var m1 = m0.MakeGenericMethod(type,m3);
             m1.Invoke(null, new object[] { builder, collectionName });
 
             return builder;
@@ -110,6 +114,13 @@ namespace MicroS_Common.Mongo
             }
             return builder;
 
+
+        }
+
+        public static MongoDbSeeder AddSeeder(this MongoDbSeeder dbSeeder,Action seed)
+        {
+            dbSeeder.Seeders.Add(seed);
+            return dbSeeder;
 
         }
     }

@@ -6,7 +6,6 @@ using MicroS_Common.RabbitMq;
 using MicroS_Common.Services.Operations.Handlers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Reflection;
 
@@ -33,7 +32,7 @@ namespace MicroS_Common.Services.Operations
         protected override void SubscribeEventAndMessageBus(IBusSubscriber bus)
         {
             base.SubscribeEventAndMessageBus(bus);
-            bus.SubscribeAllMessages(true, Assembly.GetEntryAssembly());
+            bus.SubscribeAllMessages(true, Assembly.GetEntryAssembly(),Assembly.GetExecutingAssembly());
         }
         protected override Type DomainType => null;
     }

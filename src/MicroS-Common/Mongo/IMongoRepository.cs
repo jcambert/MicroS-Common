@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace MicroS_Common.Mongo
 {
-    public interface IMongoRepository<TEntity> where TEntity : IIdentifiable
+    public interface IMongoRepository<TEntity,TKey> where TEntity : IIdentifiable<TKey>
     {
-        Task<TEntity> GetAsync(Guid id);
+        Task<TEntity> GetAsync(TKey id);
         Task<TEntity> GetAsync(Expression<Func<TEntity, bool>> predicate);
         Task<IEnumerable<TEntity>> FindAsync(string q);
 
@@ -17,7 +17,7 @@ namespace MicroS_Common.Mongo
         Task<PagedResult<TEntity>> BrowseAsync<TQuery>(Expression<Func<TEntity, bool>> predicate,TQuery query) where TQuery : PagedQueryBase;
         Task AddAsync(TEntity entity);
         Task UpdateAsync(TEntity entity);
-        Task DeleteAsync(Guid id);
+        Task DeleteAsync(TKey id);
         Task<bool> ExistsAsync(Expression<Func<TEntity, bool>> predicate);
     }
 }

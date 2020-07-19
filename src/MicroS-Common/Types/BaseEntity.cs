@@ -1,35 +1,51 @@
-﻿using System;
+﻿using MongoDB.Bson.Serialization.Attributes;
+using System;
 
 namespace MicroS_Common.Types
 {
-    public abstract class BaseEntityDto : IIdentifiable
+    public interface IEntity
     {
-        [Unique]
-        public Guid Id { get; set; }
+
+    }
+    public abstract class Entity<TKey> : IIdentifiable<TKey>, ICreatable, IUpdatable,IEntity
+    {
+        public Entity()
+        {
+
+        }
+        public Entity(TKey id)
+        {
+            Id = id;
+        }
+        [Unique,BsonId]
+        public virtual TKey Id { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
     }
-    public abstract class BaseEntity : IIdentifiable
-    {
-        [Unique]
-        public Guid Id { get;  set; }
-        public DateTime CreatedDate { get;  set; }
-        public DateTime UpdatedDate { get;  set; }
 
-        public BaseEntity() : this(Guid.NewGuid())
+    public abstract class EntityDto<TKey> : IIdentifiable<TKey>
+    {
+        public EntityDto()
         {
 
         }
-        public BaseEntity(Guid id)
+        public EntityDto(TKey id)
         {
             Id = id;
-            CreatedDate = DateTime.UtcNow;
-            SetUpdatedDate();
         }
+        public virtual TKey Id { get; set; }
+       /* public DateTime CreatedDate { get; set; }
+        public DateTime UpdatedDate { get; set; }*/
+    }
 
-        protected virtual void SetUpdatedDate(bool update = false)
-            => UpdatedDate = update ? DateTime.UtcNow : UpdatedDate;
-
+    public abstract class BaseEntityDto : EntityDto<Guid>{}
+    public abstract class BaseEntity :Entity<Guid>
+    {
         
+        public BaseEntity() : base(Guid.NewGuid())
+        {
+
+        }
+    
     }
 }

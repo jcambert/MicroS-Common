@@ -1,7 +1,6 @@
 ﻿using MicroS_Common.Dispatchers.Operations.Events;
+using MicroS_Common.Services.Identity.Messages.Events;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace MicroS_Common.Services.SignalR.Services
@@ -19,7 +18,7 @@ namespace MicroS_Common.Services.SignalR.Services
 
         public async Task PublishOperationPendingAsync(OperationPending @event)
             => await _hubContextWrapper.PublishToUserAsync(@event.UserId,
-                "operation_pending",
+                OperationBase.OPERATION_PENDING,
                 new
                 {
                     id = @event.Id,
@@ -30,7 +29,7 @@ namespace MicroS_Common.Services.SignalR.Services
 
         public async Task PublishOperationCompletedAsync(OperationCompleted @event)
             => await _hubContextWrapper.PublishToUserAsync(@event.UserId,
-                "operation_completed",
+                OperationBase.OPERATION_COMPLETED,
                 new
                 {
                     id = @event.Id,
@@ -41,7 +40,7 @@ namespace MicroS_Common.Services.SignalR.Services
 
         public async Task PublishOperationRejectedAsync(OperationRejected @event)
             => await _hubContextWrapper.PublishToUserAsync(@event.UserId,
-                "operation_rejected",
+                OperationBase.OPERATION_REJECTED,
                 new
                 {
                     id = @event.Id,
@@ -51,5 +50,16 @@ namespace MicroS_Common.Services.SignalR.Services
                     reason = @event.Message
                 }
             );
+
+      /*  public async Task PublishIdentitySignedInAsync(SignedIn @event,Guid UserId)
+        {
+            await _hubContextWrapper.PublishToUserAsync(
+                UserId,
+                IdentityBase.SIGNED_IN,
+                new
+                {
+                    id = @event.UserId
+                });
+        }*/
     }
 }

@@ -38,15 +38,15 @@ namespace MicroS_Common.Handlers
             return PagedResult<TDto>.From(pagedResult, products);
         }
     }
-    public abstract class BaseBrowseHandler<TDomain, TBrowseQuery, TDto, TRepository> : BrowseHandler<TDomain, TBrowseQuery, TDto>
-        where TDomain : BaseEntity
+    public abstract class BaseBrowseHandler<TDomain,TKey, TBrowseQuery, TDto, TRepository> : BrowseHandler<TDomain, TBrowseQuery, TDto>
+        where TDomain : Entity<TKey>
         where TBrowseQuery : PagedQueryBase, IQuery<PagedResult<TDto>>
-        where TRepository : IBrowseRepository<TDomain, TBrowseQuery, TDto>
+        where TRepository : IBrowseRepository<TDomain,TKey, TBrowseQuery, TDto>
     {
         private readonly TRepository _repository;
-        private readonly ILogger<BaseBrowseHandler<TDomain, TBrowseQuery, TDto, TRepository>> _logger;
+        private readonly ILogger<BaseBrowseHandler<TDomain,TKey, TBrowseQuery, TDto, TRepository>> _logger;
 
-        public BaseBrowseHandler(TRepository repository, IMapper mapper,ILogger<BaseBrowseHandler<TDomain, TBrowseQuery, TDto, TRepository>> logger) : base(mapper)
+        public BaseBrowseHandler(TRepository repository, IMapper mapper,ILogger<BaseBrowseHandler<TDomain,TKey, TBrowseQuery, TDto, TRepository>> logger) : base(mapper)
         {
             _repository = repository;
             _logger = logger;

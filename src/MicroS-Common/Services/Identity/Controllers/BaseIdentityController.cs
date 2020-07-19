@@ -39,7 +39,7 @@ namespace MicroS_Common.Services.Identity.Controllers
         [HttpPost("sign-up"),AllowAnonymous]
         public async Task<IActionResult> SignUp(SignUp command)
         {
-            command.BindId(c => c.Id);
+            command.Bind(c => c.Id);
             await _identityService.SignUpAsync(command.Id,
                 command.Email, command.Password, command.Role);
 

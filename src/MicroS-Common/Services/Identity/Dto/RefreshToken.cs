@@ -1,6 +1,7 @@
 ﻿using MicroS_Common.Mongo;
 using MicroS_Common.Types;
 using Microsoft.AspNetCore.Identity;
+using MongoDB.Bson.Serialization.Attributes;
 using System;
 
 namespace MicroS_Common.Services.Identity.Dto
@@ -8,6 +9,7 @@ namespace MicroS_Common.Services.Identity.Dto
     [MongoDocument("RefreshToken")]
     public class RefreshToken : IIdentifiable
     {
+        [BsonId]
         public Guid Id { get; private set; }
         public Guid UserId { get; private set; }
         public string Token { get; private set; }

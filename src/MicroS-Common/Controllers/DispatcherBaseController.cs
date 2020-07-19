@@ -1,5 +1,4 @@
 ﻿using Chronicle;
-using MicroS_Common.Authentication;
 using MicroS_Common.Dispatchers;
 using MicroS_Common.Messages;
 using MicroS_Common.RabbitMq;
@@ -8,30 +7,54 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using OpenTracing;
 using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace MicroS_Common.Controllers
 {
-    [JwtAuth]
-    public class ApiBaseController:BaseController
+    public abstract class DispatcherBaseController : BaseController
     {
-        protected IBusPublisher BusPublisher { get; }
-        protected ITracer Tracer { get; }
-        public ApiBaseController(IBusPublisher busPublisher, ITracer tracer,IDispatcher dispatcher, IConfiguration configuration, IOptions<AppOptions> appOptions) : base(dispatcher, configuration, appOptions)
+        protected  IBusPublisher BusPublisher { get; }
+        internal  ITracer Tracer { get; }
+        protected DispatcherBaseController(IBusPublisher busPublisher, ITracer tracer,IDispatcher dispatcher, IConfiguration configuration, IOptions<AppOptions> appOptions) 
+            : base(dispatcher, configuration, appOptions)
         {
-            BusPublisher = busPublisher;
-            Tracer = tracer;
+            this.BusPublisher = busPublisher;
+            this.Tracer = tracer;
         }
 
-        protected async Task<IActionResult> SendAsync<T, TResourceType>(T command,
-            TResourceType resourceId = default(TResourceType), string resource = "") where T : ICommand
+        protected Task<IActionResult> SendAsync<TCommand, TResourceType>(TCommand command)
+            where TCommand : ICommand
+            => this.SendAsync<TCommand, TResourceType>(command, default(TResourceType));
+
+        protected async Task<IActionResult> SendAsync<TCommand, TResourceType>(TCommand command,
+            [AllowNull] TResourceType resourceId, string resource = "")
+            where TCommand : ICommand
+
         {
             var resId = GetContextResourceId(resourceId);
-            var context = GetContext<T>(resId, resource);
+            var context = GetContext<TCommand>(resId, resource);
             await BusPublisher.SendAsync(command, context);
 
             return Accepted(context);
         }
+
+        protected IActionResult Accepted(ICorrelationContext context)
+        {
+            if (context == null)
+                throw new ArgumentNullException($"{nameof(BaseController) }->Accepted context cannot be null");
+
+            Response.Headers.Add(OperationHeader, $"operations/{context.Id}");
+            if (!string.IsNullOrWhiteSpace(context.Resource))
+            {
+                Response.Headers.Add(ResourceHeader, context.Resource);
+            }
+
+            return base.Accepted();
+        }
+
         protected string GetContextResourceId<TResourceType>(TResourceType resourceId)
         {
             string resId;
@@ -58,5 +81,6 @@ namespace MicroS_Common.Controllers
                HttpContext.TraceIdentifier, HttpContext.Connection.Id, Tracer?.ActiveSpan?.Context?.ToString() ?? "",
                Request.Path.ToString(), Culture, resource);
         }
+
     }
 }

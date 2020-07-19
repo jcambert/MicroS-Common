@@ -8,7 +8,7 @@ namespace MicroS_Common.Services.Operations
 {
     internal static  class Extensions
     {
-        private static readonly Type[] SagaTypes = Assembly.GetExecutingAssembly()
+        private static readonly Type[] SagaTypes = Assembly.GetEntryAssembly()
             .GetTypes()
             .Where(t => t.IsAssignableTo<ISaga>())
             .ToArray();

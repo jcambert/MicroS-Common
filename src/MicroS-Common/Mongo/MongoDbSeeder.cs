@@ -1,32 +1,32 @@
 ﻿using MongoDB.Driver;
-using System.Linq;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using System;
+using Microsoft.Extensions.Logging;
 
 namespace MicroS_Common.Mongo
 {
-    public class MongoDbSeeder : IMongoDbSeeder
+    public abstract class MongoDbSeeder : IMongoDbSeeder
     {
         protected readonly IMongoDatabase Database;
-
-        public MongoDbSeeder(IMongoDatabase database)
+        protected ILogger<MongoDbSeeder> Logger { get; }
+        private readonly List<Action> seeders;
+        public MongoDbSeeder(IMongoDatabase database,ILogger<MongoDbSeeder> logger)
         {
             Database = database;
+            Logger = logger;
+            seeders = new List<Action>();
         }
-
+        public List<Action> Seeders => seeders;
         public async Task SeedAsync()
         {
-
+            FeedSeeder();
             await CustomSeedAsync();
         }
-
+        protected abstract void FeedSeeder();
         protected virtual async Task CustomSeedAsync()
         {
-            var cursor = await Database.ListCollectionsAsync();
-            var collections = await cursor.ToListAsync();
-            if (collections.Any())
-            {
-                return;
-            }
+            seeders.ForEach(seeder => seeder());
             await Task.CompletedTask;
         }
     }

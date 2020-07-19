@@ -2,6 +2,7 @@
 {
     public class JwtOptions
     {
+        public const string SECTION_NAME = "jwt";
         public string SecretKey { get; set; }
         public string Issuer { get; set; }
         public int ExpiryMinutes { get; set; }

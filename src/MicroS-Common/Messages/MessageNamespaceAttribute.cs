@@ -2,7 +2,7 @@
 
 namespace MicroS_Common.Messages
 {
-    [AttributeUsage(AttributeTargets.Class)]
+    [AttributeUsage(AttributeTargets.Class,AllowMultiple = false,Inherited = true)]
     public class MessageNamespaceAttribute : Attribute
     {
         public string Namespace { get; }

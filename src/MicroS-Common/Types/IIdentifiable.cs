@@ -2,8 +2,11 @@
 
 namespace MicroS_Common.Types
 {
-    public interface IIdentifiable
+    public interface IIdentifiable:IIdentifiable<Guid>
+    {}
+
+    public interface IIdentifiable<T>
     {
-        Guid Id { get; }
+        T Id { get; }
     }
 }

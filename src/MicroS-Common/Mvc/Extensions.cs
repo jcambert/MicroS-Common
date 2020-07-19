@@ -27,7 +27,7 @@ namespace MicroS_Common.Mvc
                 var configuration = serviceProvider.GetService<IConfiguration>();
                 services.Configure<AppOptions>(configuration.GetSection(AppOptions.SECTION));
             }
-            
+
             services.AddSingleton<IServiceId, ServiceId>();
             //services.AddTransient<IStartupInitializer, StartupInitializer>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
@@ -64,7 +64,8 @@ namespace MicroS_Common.Mvc
                  var startupInitializer = new StartupInitializer();
                  var services = c.GetServices<IInitializer>();
                  /*var validInitializers = initializers.Where(t => typeof(IInitializer).IsAssignableFrom(t));
-                 */foreach (var initializer in services)
+                 */
+                 foreach (var initializer in services)
                  {
                      startupInitializer.AddInitializer(initializer);
                  }
@@ -113,15 +114,24 @@ namespace MicroS_Common.Mvc
                 }
             });
 
-        public static T Bind<T>(this T model, Expression<Func<T, object>> expression, object value, ILogger<T> logger = null)
-            => model.Bind<T, object>(expression, value);
+        /* public static T Bind<T>(this T model, Expression<Func<T, object>> expression, object value, ILogger<T> logger = null)
+             => model.Bind<T,Guid, object>(expression, value);*/
 
-        public static T BindId<T>(this T model, Expression<Func<T, Guid>> expression, ILogger<T> logger = null)
-            => model.Bind<T, Guid>(expression, Guid.NewGuid(), logger);
+        public static T Bind<T, TKey>(this T model, Expression<Func<T, TKey>> expression, TKey value, ILogger<T> logger = null)
+            => model.InternalBind<T, TKey>(expression, value);
 
-        private static TModel Bind<TModel, TProperty>(this TModel model, Expression<Func<TModel, TProperty>> expression,
-            object value, ILogger<TModel> logger = null)
+        public static T Bind<T>(this T model, Expression<Func<T, Guid>> expression, ILogger<T> logger = null)
+            => model.InternalBind<T, Guid>(expression, Guid.NewGuid(), logger);
+
+  
+        public static T Bind<T, TKey>(this T model, Expression<Func<T, TKey>> expression, ILogger<T> logger = null)
+            => model.InternalBind<T, TKey>(expression, default(TKey), logger);
+
+        private static TModel InternalBind<TModel, TProperty>(this TModel model, Expression<Func<TModel, TProperty>> expression,
+            TProperty value, ILogger<TModel> logger = null)
+
         {
+
             if (!(expression.Body is MemberExpression memberExpression))
             {
                 memberExpression = ((UnaryExpression)expression.Body).Operand as MemberExpression;
@@ -139,10 +149,21 @@ namespace MicroS_Common.Mvc
             var field = fields.SingleOrDefault(x => x.Name.ToLowerInvariant().StartsWith($"<{propertyName}>"));
             if (field == null)
             {
-                if (logger != null) logger.LogError($"Cannot bind {propertyName}");
+                var errorMessage = $"{typeof(TModel)} BindId Cannot bind to {propertyName}!";
+                if (logger != null)
+                    logger.LogError(errorMessage);
+                else
+                    throw new ArgumentNullException(errorMessage);
                 return model;
             }
-
+            if (value == null)
+            {
+                var errorMessage = $"{typeof(TModel)} BindId value {propertyName} to Null!!";
+                if (logger != null)
+                    logger.LogError(errorMessage);
+                else
+                    throw new ArgumentNullException(errorMessage);
+            }
             field.SetValue(model, value);
 
             return model;

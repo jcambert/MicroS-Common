@@ -1,8 +1,6 @@
 ﻿using MicroS_Common.Authentication;
 using Microsoft.AspNetCore.SignalR;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace MicroS_Common.Services.SignalR.Hubs

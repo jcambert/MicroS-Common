@@ -9,14 +9,14 @@ using System.Threading.Tasks;
 
 namespace MicroS_Common.Handlers
 {
-    public abstract class DomainCommandHandler<TCommand, TDomain> : BaseCommandHandler<TCommand>
+    public abstract class DomainCommandHandler<TCommand, TDomain,TKey> : BaseCommandHandler<TCommand>
         where TCommand : ICommand
-        where TDomain : BaseEntity
+        where TDomain : Entity<TKey>
     {
 
 
         public DomainCommandHandler(IBusPublisher busPublisher,
-            IMapper mapper, IRepository<TDomain> repo, IValidate<TDomain> validator =null,IValidateContext ctx=null) : base(busPublisher, mapper)
+            IMapper mapper, IRepository<TDomain,TKey> repo, IValidate<TDomain,TKey> validator =null,IValidateContext ctx=null) : base(busPublisher, mapper)
         {
             Repository = repo;
             Validator = validator;
@@ -26,11 +26,11 @@ namespace MicroS_Common.Handlers
         protected TEvent CreateEvent<TEvent>(TCommand command) where TEvent : IEvent
             => Mapper.Map<TCommand, TEvent>(command);
 
-        public IRepository<TDomain> Repository { get; }
-        public IValidate<TDomain> Validator { get; }
+        public IRepository<TDomain,TKey> Repository { get; }
+        public IValidate<TDomain,TKey> Validator { get; }
 
         protected virtual Task<bool> CheckExist(TDomain entity)=>this.CheckExist(entity.Id);
-        protected virtual Task<bool> CheckExist(Guid id) => Repository.ExistsAsync(id);
+        protected virtual Task<bool> CheckExist(TKey id) => Repository.ExistsAsync(id);
 
         protected virtual void Validate(TDomain entity)
         {

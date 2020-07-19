@@ -7,9 +7,9 @@ namespace MicroS_Common.Services.Identity.Repositories
 {
     public class UserRepository : IUserRepository
     {
-        private readonly IMongoRepository<User> _repository;
+        private readonly IMongoRepository<User,Guid> _repository;
 
-        public UserRepository(IMongoRepository<User> repository)
+        public UserRepository(IMongoRepository<User,Guid> repository)
         {
             _repository = repository;
         }

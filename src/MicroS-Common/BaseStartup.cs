@@ -1,15 +1,12 @@
 ﻿using Autofac;
-using Autofac.Builder;
-using Autofac.Features.Scanning;
 using AutoMapper;
 using Consul;
-using MicroS_Common.Applications;
 using MicroS_Common.Authentication;
 using MicroS_Common.Consul;
 using MicroS_Common.Dispatchers;
 using MicroS_Common.Dispatchers.Operations.Events;
-using MicroS_Common.Domain;
 using MicroS_Common.Jeager;
+using MicroS_Common.Logging;
 using MicroS_Common.Mongo;
 using MicroS_Common.Mvc;
 using MicroS_Common.RabbitMq;
@@ -29,7 +26,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 
@@ -96,7 +92,11 @@ namespace MicroS_Common
             services.RegisterAllServiceForwarders(Assembly.GetEntryAssembly());
             if (UseSignalR)
                 services.AddSignalr();
-            
+            if (ApplicationOptions.UseBlazor)
+            {
+                services.AddRazorPages();
+                services.AddServerSideBlazor();
+            }
         }
 
         
@@ -129,7 +129,14 @@ namespace MicroS_Common
             
             if (env.IsDevelopment())
             {
+                app.UseMiddleware<RequestLoggingMiddleware>();
                 app.UseDeveloperExceptionPage();
+            }
+            else
+            {
+                app.UseExceptionHandler("/Error");
+                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+                app.UseHsts();
             }
             var consulServiceId = app.UseConsul();
             applicationLifetime.ApplicationStarted.Register(() =>
@@ -146,6 +153,8 @@ namespace MicroS_Common
             if (UseCors)
                 app.UseCors("CorsPolicy");
             app.UseAllForwardedHeaders();
+            if (ApplicationOptions.UseHttps)
+                app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseSwaggerDocs();
             app.UseErrorHandler();
@@ -161,6 +170,15 @@ namespace MicroS_Common
                 });
             app.UseMvc();
             SubscribeEventAndMessageBus(app.UseRabbitMq());
+            if (ApplicationOptions.UseBlazor)
+            {
+                app.UseRouting();
+                app.UseEndpoints(endpoints =>
+                {
+                    endpoints.MapBlazorHub();
+                    endpoints.MapFallbackToPage("/_Host");
+                });
+            }
         }
         protected virtual void SubscribeEventAndMessageBus(IBusSubscriber bus)
         {

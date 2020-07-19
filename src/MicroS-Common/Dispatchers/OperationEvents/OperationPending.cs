@@ -5,22 +5,12 @@ using System;
 
 namespace MicroS_Common.Dispatchers.Operations.Events
 {
-    [MessageNamespace("operations")]
-    public class OperationPending : IEvent
-    {
-        public /*Guid*/SagaId Id { get; }
-        public Guid UserId { get; }
-        public string Name { get; }
-        public string Resource { get; }
 
+    public class OperationPending : OperationBase
+    {
         [JsonConstructor]
-        public OperationPending(/*Guid*/SagaId id,
-            Guid userId, string name, string resource)
-        {
-            Id = id;
-            UserId = userId;
-            Name = name;
-            Resource = resource;
-        }
+        public OperationPending(SagaId id, Guid userId, string name, string resource)
+            : base(id, userId, name, resource)
+        { }
     }
 }

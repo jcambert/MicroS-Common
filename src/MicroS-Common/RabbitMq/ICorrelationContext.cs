@@ -11,7 +11,7 @@ namespace MicroS_Common.RabbitMq
     {
         string Id { get; }
         Guid UserId { get; }
-        Guid ResourceId { get; }
+        string ResourceId { get; }
         string TraceId { get; }
         string SpanContext { get; }
         string ConnectionId { get; }

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 using System;
@@ -7,7 +8,10 @@ namespace MicroS_Common.Services.SignalR
 {
     public static class Extensions
     {
-        
+
+        public static string ConnectionString(this SignalrOptions opt, NavigationManager nav)
+            => string.IsNullOrEmpty(opt.Url) ? $"{nav.BaseUri}{opt.Hub}" : $"{opt.Url}/{opt.Hub}";
+
         public static string ToUserGroup(this Guid userId)=> $"users:{userId}";
 
         public static IServiceCollection AddSignalr(this IServiceCollection services)
